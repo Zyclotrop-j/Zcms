@@ -1,0 +1,31 @@
+@aad "AES256GCM" # Use AES 256 Bit Keys for Encryption.
+
+  def encrypt(plaintext, s) do
+    iv = :crypto.strong_rand_bytes(16) # create random Initialisation Vector
+    key = get_key(s)    # get the *latest* key in the list of encryption keys
+    {ciphertext, tag} =
+      :crypto.block_encrypt(:aes_gcm, key, iv, {@aad, to_string(plaintext), 16})
+    iv <> tag <> ciphertext # "return" iv with the cipher tag & ciphertext
+  end
+
+  def decrypt(ciphertext, s) do
+    <<iv::binary-16, tag::binary-16, ciphertext::binary>> = ciphertext
+    :crypto.block_decrypt(:aes_gcm, get_key(s), iv, {@aad, ciphertext, tag})
+  end
+  
+  def hash(value) do
+    :crypto.hash(:sha256, value <> get_salt(value))
+  end
+
+  defp get_salt(value) do
+    secret_key_base = Application.get_env(:zcms, Zcms.Endpoint)[:secret_key_base]
+    :crypto.hash(:sha256, value <> secret_key_base)
+  end
+
+  defp get_key(s) do
+    String.slice(s <> "qohlrXGAF9Njpw8UXd5DRlxAf26m96kv", 0, 32) # return a random 32 Byte / 128 bit binary to use as key.
+  end
+  
+  def verify_password(password, stored_hash) do
+    Bcrypt.verify_pass(password, stored_hash)
+  end

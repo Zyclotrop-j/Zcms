@@ -1,0 +1,68 @@
+defmodule ZcmsWeb.Schema do
+  use Absinthe.Schema
+  import Absinthe.Resolution.Helpers
+
+  import_types(ZcmsWeb.Schema.{Types, Types.Custom.JSON, Types.Custom.NULL})
+
+  def context(ctx) do
+    loader =
+      Dataloader.new()
+      |> Dataloader.add_source(:zmongo, Zcms.Loaders.Mongo.data())
+
+    Map.put(ctx, :loader, loader)
+  end
+
+  def plugins do
+    [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
+  end
+
+  query do
+    field :blog_posts, list_of(:blog_post) do
+      arg(:_id, :id)
+      arg(:title, :string)
+      arg(:body, :string)
+      arg(:tags, list_of(:string))
+      resolve(&Zcms.Generic.Resolver.all/2)
+    end
+
+    field :blog_post, type: :blog_post do
+      arg(:_id, non_null(:id))
+      resolve(&Zcms.Generic.Resolver.find/2)
+    end
+
+    field :accounts_users, list_of(:accounts_user) do
+      arg(:_id, :id)
+      arg(:email, :string)
+      arg(:name, :string)
+      arg(:address, :input_address)
+      resolve(&Zcms.Generic.Resolver.all/2)
+    end
+
+    field :accounts_user, :accounts_user do
+      arg(:_id, non_null(:id))
+      resolve(&Zcms.Generic.Resolver.find/2)
+    end
+
+    mutation do
+      field :create_blog_post, type: :blog_post do
+        arg(:title, :string)
+        arg(:body, :string)
+        arg(:tags, list_of(:string))
+        resolve(&Zcms.Generic.Resolver.create/2)
+      end
+
+      field :update_blog_posts, type: :blog_post do
+        arg(:_id, non_null(:id))
+        arg(:title, :string)
+        arg(:body, :string)
+        arg(:tags, list_of(:string))
+        resolve(&Zcms.Generic.Resolver.update/2)
+      end
+
+      field :delete_blog_posts, type: :blog_post do
+        arg(:_id, non_null(:id))
+        resolve(&Zcms.Generic.Resolver.delete/2)
+      end
+    end
+  end
+end
