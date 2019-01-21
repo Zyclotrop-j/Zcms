@@ -12,6 +12,10 @@ defmodule ZcmsWeb.Router do
     plug(:put_secure_browser_headers)
   end
 
+  pipeline :graphql do
+    plug(ZcmsWeb.GQLContext)
+  end
+
   pipeline :auth do
     plug(ZcmsWeb.JokenPlug,
       verify: &ZcmsWeb.Router.verify_function/1,
@@ -92,17 +96,24 @@ defmodule ZcmsWeb.Router do
     get("/:resource", RestController, :index)
     get("/:resource/:id", RestController, :show)
     post("/:resource", RestController, :create)
-    put("/:resource/:id", RestController, :update)
+    put("/:resource/:id", RestController, :replace)
     patch("/:resource/:id", RestController, :update)
     delete("/:resource/:id", RestController, :delete)
   end
 
   scope "/apig" do
-    pipe_through([:api])
+    pipe_through([:api, :graphql])
     # sub = conn.assigns
     # |> Map.get(:joken_claims)
     # |> Map.get("sub")
     forward("/graphql", Absinthe.Plug, schema: ZcmsWeb.Schema)
     forward("/graphiql", Absinthe.Plug.GraphiQL, schema: ZcmsWeb.Schema)
+  end
+
+  scope "/control", ZcmsWeb do
+    # Use the default browser stack
+    pipe_through(:browser)
+
+    get("/recompile", ControlController, :index)
   end
 end

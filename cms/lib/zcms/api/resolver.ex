@@ -52,9 +52,9 @@ defmodule Zcms.Generic.Resolver do
   #  for {key, val} <- string_key_map, into: %{}, do: {String.to_atom(key), val}
   # end
 
-  def all(argsmap, _info) do
+  def all(argsmap, info) do
     type =
-      case _info.definition.schema_node.type do
+      case info.definition.schema_node.type do
         %{of_type: x} -> x
         val -> val
       end
@@ -63,14 +63,14 @@ defmodule Zcms.Generic.Resolver do
 
     query = flatten_to_json_path(argsmap)
 
-    Zcms.Resource.Rest.list_rests(type, query, fn i ->
+    Zcms.Resource.Rest.list_rests(info.context.conn, type |> String.downcase(), query, fn i ->
       {:ok, i |> Enum.map(&string_key_map_to_atom/1) |> Enum.to_list()}
     end)
   end
 
-  def find(argsmap, _info) do
+  def find(argsmap, info) do
     type =
-      case _info.definition.schema_node.type do
+      case info.definition.schema_node.type do
         %{of_type: x} -> x
         val -> val
       end
@@ -80,7 +80,8 @@ defmodule Zcms.Generic.Resolver do
     query = flatten_to_json_path(argsmap)
 
     Zcms.Resource.Rest.get_rest(
-      type,
+      info.context.conn,
+      type |> String.downcase(),
       query,
       fn item -> {:ok, string_key_map_to_atom(item)} end,
       fn ->
@@ -100,9 +101,15 @@ defmodule Zcms.Generic.Resolver do
       |> Atom.to_string()
       |> Macro.camelize()
 
-    Zcms.Resource.Rest.create_rest(type, argsmap, info, fn id ->
-      find(%{:_id => BSON.ObjectId.encode!(id)}, info)
-    end)
+    Zcms.Resource.Rest.create_rest(
+      info.context.conn,
+      type |> String.downcase(),
+      argsmap,
+      info,
+      fn id ->
+        find(%{:_id => BSON.ObjectId.encode!(id)}, info)
+      end
+    )
   end
 
   def update(argsmap, info) do
@@ -116,12 +123,14 @@ defmodule Zcms.Generic.Resolver do
 
     {id, map} = Map.pop(argsmap, :_id)
 
-    Zcms.Resource.Rest.update_rest(type, id, map, fn _ -> find(%{:_id => id}, info) end)
+    Zcms.Resource.Rest.update_rest(info.context.conn, type |> String.downcase(), id, map, fn _ ->
+      find(%{:_id => id}, info)
+    end)
   end
 
-  def delete(argsmap, _info) do
+  def delete(argsmap, info) do
     type =
-      case _info.definition.schema_node.type do
+      case info.definition.schema_node.type do
         %{of_type: x} -> x
         val -> val
       end
@@ -130,6 +139,8 @@ defmodule Zcms.Generic.Resolver do
 
     id = argsmap._id
 
-    Zcms.Resource.Rest.delete_rest(type, id, fn _ -> {:ok, nil} end)
+    Zcms.Resource.Rest.delete_rest(info.context.conn, type |> String.downcase(), id, fn _ ->
+      {:ok, nil}
+    end)
   end
 end

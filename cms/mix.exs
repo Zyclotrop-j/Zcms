@@ -54,7 +54,8 @@ defmodule Zcms.Mixfile do
       {:mongodb, ">= 0.0.0"},
       {:poolboy, ">= 0.0.0"},
       {:dataloader, "~> 1.0.0"},
-      {:odgn_json_pointer, "~> 2.4"}
+      {:odgn_json_pointer, "~> 2.4"},
+      {:ex_json_schema, "~> 0.5.4"}
     ]
   end
 

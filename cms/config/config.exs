@@ -14,8 +14,7 @@ config :zcms, ZcmsWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "b4mnfA1qWYES568NKQpkiE1a5Eqj+k3sbKdV3y9QevWMj+/jcDMtSxOvRFwAzDJB",
   render_errors: [view: ZcmsWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Zcms.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Zcms.PubSub, adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -27,7 +26,22 @@ config :logger, :console,
 #  providers: [
 #    auth0: { Ueberauth.Strategy.Auth0, [] },
 #  ]
+config :ex_json_schema,
+       :remote_schema_resolver,
+       fn url ->
+         %{
+           "type" => "object",
+           "required" => ["$id", "$ref"],
+           "properties" => %{
+             "$id" => %{"type" => "string"},
+             "$ref": %{"type" => "string"},
+             "$db": %{"type" => "string"}
+           }
+         }
+       end
+
+# alternatively HTTPoison.get!(url).body |> Poison.decode!
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

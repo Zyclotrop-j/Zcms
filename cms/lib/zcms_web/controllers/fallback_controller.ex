@@ -59,6 +59,12 @@ defmodule ZcmsWeb.FallbackController do
     |> render(ZcmsWeb.ChangesetView, "error.json", changeset: changeset)
   end
 
+  def call(conn, {:error, %{type: :json_schema_error, message: msg}}) do
+    conn
+    |> put_status(:bad_request)
+    |> render(ZcmsWeb.ErrorView, :"400", message: msg)
+  end
+
   def call(conn, {:error, :not_found}) do
     conn
     |> put_status(:not_found)
@@ -68,8 +74,7 @@ defmodule ZcmsWeb.FallbackController do
   def call(conn, {:error, error}) when is_binary(error) do
     conn
     |> put_status(:internal_server_error)
-    |> assign(:message, error)
-    |> render(ZcmsWeb.ErrorView, :"500")
+    |> render(ZcmsWeb.ErrorView, :"500", message: error)
   end
 
   def call(conn, _) do

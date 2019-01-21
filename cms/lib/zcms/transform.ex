@@ -19,7 +19,7 @@ defmodule Zcms.Application.Transformer do
       use Absinthe.Schema
       import Absinthe.Resolution.Helpers
 
-      import_types(ZcmsWeb.Schema.{Types, Types.Custom.JSON, #{types}})
+      import_types(ZcmsWeb.Schema.{Types, Types.Custom.JSON#{types}})
 
       def context(ctx) do
         loader =
@@ -44,8 +44,17 @@ defmodule Zcms.Application.Transformer do
       end
     """
 
+  def compile(name, ct) do
+    {:ok, file} = File.open(name <> ".debug", [:write])
+    IO.binwrite(file, ct)
+    File.close(file)
+    # Compile to memory!!!
+    [{mod, _}] = Code.compile_string(ct)
+    {:ok, mod}
+  end
+
   def transformSchema(conn) do
-    cursor = Mongo.find(conn, "Schema", %{})
+    cursor = conn.("schema", %{})
 
     schemasfromdb =
       cursor
@@ -68,19 +77,18 @@ defmodule Zcms.Application.Transformer do
           json
           |> parse(filename)
 
-        {:ok, file} = File.open(schemapath <> "#{filename}-result-types.ex", [:write])
-        IO.binwrite(file, first(filename) <> add <> queryinputtypes <> last)
-        File.close(file)
+        {:ok, file} =
+          compile(
+            schemapath <> "#{filename}-result-types.ex",
+            first(filename) <> add <> queryinputtypes <> last
+          )
+
+        # compile_string
 
         ttypes = "Types.#{String.capitalize(filename)}"
 
-        {qq <> queries, mm <> mutations, imt <> ttypes}
+        {qq <> queries, mm <> mutations, imt <> ", " <> ttypes}
       end)
-
-    case File.rm(schemapath <> schemafile) do
-      :ok -> :ok
-      {:error, :enoent} -> :ok
-    end
 
     r = """
     query do
@@ -91,9 +99,7 @@ defmodule Zcms.Application.Transformer do
     end
     """
 
-    {:ok, file} = File.open(schemapath <> schemafile, [:write])
-    IO.binwrite(file, schemafirst(importtypes) <> r <> schemalast)
-    File.close(file)
+    {:ok, file} = compile(schemapath <> schemafile, schemafirst(importtypes) <> r <> schemalast)
 
     :ok
   end
@@ -102,11 +108,18 @@ defmodule Zcms.Application.Transformer do
     {args, inputData} =
       p
       |> Enum.map(fn {k, v} ->
-        [type, data] = parse(v, k, true)
+        case parse(v, k, true) do
+          [nil, nil] ->
+            {"", ""}
 
-        {"""
-         arg(:#{Macro.underscore(k)}, #{type})
-         """, data}
+          [nil, data] ->
+            {"", data}
+
+          [type, data] ->
+            {"""
+             arg(:\"#{Macro.underscore(k)}\", #{type})
+             """, data}
+        end
       end)
       |> Enum.unzip()
 
@@ -144,8 +157,11 @@ defmodule Zcms.Application.Transformer do
   end
 
   defp match({k, v}, isQuery) do
-    [type, data] = parse(v, k, isQuery)
-    {"field(:#{Macro.underscore(k)}, #{type})", data}
+    case parse(v, k, isQuery) do
+      [nil, nil] -> {"", ""}
+      [nil, data] -> {"", data}
+      [type, data] -> {"field(:\"#{Macro.underscore(k)}\", #{type})", data}
+    end
   end
 
   def parse(x, y), do: parse(x, y, false)
@@ -187,8 +203,11 @@ defmodule Zcms.Application.Transformer do
   end
 
   def parse(%{"type" => "array", "items" => i}, name, isQuery) do
-    [type, data] = parse(i, name, isQuery)
-    ["list_of(#{type})", data]
+    case parse(i, name, isQuery) do
+      [nil, nil] -> ["", ""]
+      [nil, data] -> ["", data]
+      [type, data] -> ["list_of(#{type})", data]
+    end
   end
 
   def parse(%{"type" => "string"}, name, _) do
@@ -211,6 +230,11 @@ defmodule Zcms.Application.Transformer do
     [":null", ""]
   end
 
+  def parse(%{"type" => "array"}, name, isQuery) do
+    # Without items we don't know what the list is of
+    [nil, nil]
+  end
+
   def parse(%{"type" => other}, name, _) do
     raise MalformedSchema, message: "found unknow type #{other}"
   end
@@ -224,6 +248,7 @@ defmodule Zcms.Application.Transformer do
     # get ref and process from there
     # ref.split("/").pop() -> name -> put that name to remember for recurse
     # put
+    [nil, nil]
   end
 
   def parse(%{"enum" => enum}, name, _) do
@@ -239,33 +264,34 @@ defmodule Zcms.Application.Transformer do
   end
 
   def parse(%{"const" => const}, name, _) do
-    [":json", ""]
+    # TODO
+    [nil, nil]
   end
 
   def parse(%{"anyOf" => listofsubschema}, name, _) do
     # TODO
     # define union of listofsubschema
-    [":union_....", ""]
+    [nil, nil]
   end
 
   def parse(%{"oneOf" => listofsubschema}, name, _) do
     # TODO
     # define union of listofsubschema
     # we can't enforce all items in union to be the same, must do this via validation
-    [":union_....", ""]
+    [nil, nil]
   end
 
   def parse(%{"allOf" => listofsubschema}, name, _) do
     # TODO
     # ?????, maybe search for first one with type/enum/const?
-    [":...", ""]
+    [nil, nil]
   end
 
   def parse(%{}, name, _) do
-    [":json", ""]
+    [nil, nil]
   end
 
   def parse(True, name, _) do
-    [":json", ""]
+    [nil, nil]
   end
 end

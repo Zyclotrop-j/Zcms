@@ -22,14 +22,18 @@ ijson =
 
 json =
   ijson
-  |> Map.put("schema", ijson["$schema"])
-  |> Map.put("id", ijson["$id"])
-  |> Map.update!("title", fn i -> Regex.replace(~r/ /, i, "_") |> Macro.camelize() end)
+  |> Map.put("_$schema", ijson["$schema"])
+  |> Map.put("_$id", ijson["$id"])
+  |> Map.update!("title", fn i -> Regex.replace(~r/ /, i, "") |> String.downcase() end)
   |> Map.drop(["$schema", "$id"])
 
-case Mongo.count_documents(conn, "Schema", %{"title" => json["title"]}) do
+case Mongo.count_documents(conn, "schema", %{"title" => json["title"]}) do
   {:ok, 1} -> :ok
-  other -> Mongo.insert_one!(conn, "Schema", json)
+  other -> Mongo.insert_one!(conn, "schema", json)
 end
 
-# Zcms.Application.Transformer.transformSchema(conn)
+IO.puts("Initialized DB")
+
+# Zcms.Application.Transformer.transformSchema(fn a, b ->
+#  Mongo.find(conn, a, b)
+# end)

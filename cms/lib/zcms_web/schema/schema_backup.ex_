@@ -17,5 +17,9 @@ defmodule ZcmsWeb.Schema do
   end
 
   query do
+    field :schema, :schema do
+      arg(:_id, non_null(:id))
+      resolve(&Zcms.Generic.Resolver.find/2)
+    end
   end
 end

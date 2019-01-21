@@ -18,8 +18,8 @@ defmodule Zcms.Application do
     ]
 
     # Create in-memory-tables for caching
-    :simple_cache = :ets.new(:simple_cache, [:set, :protected, :named_table])
-    :my_app_user_routes = :ets.new(:my_app_user_routes, [:named_table, :bag, :public])
+    :simple_cache = :ets.new(:simple_cache, [:set, :public, :named_table])
+    :schema_cache = :ets.new(:schema_cache, [:set, :public, :named_table])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

@@ -1,4 +1,22 @@
 defmodule Zcms.Resource.Rest do
+  def map_keys(map, fun) do
+    case map do
+      %BSON.ObjectId{} ->
+        map
+
+      %{} ->
+        for {key, val} <- map,
+            into: %{},
+            do: {fun.(key), map_keys(val, fun)}
+
+      [_ | _] ->
+        Enum.map(map, fn item -> map_keys(item, fun) end)
+
+      val ->
+        val
+    end
+  end
+
   @moduledoc """
   The Zcms context.
   """
@@ -12,8 +30,13 @@ defmodule Zcms.Resource.Rest do
       [%Rest{}, ...]
 
   """
-  def list_rests(type, query \\ %{}, r \\ & &1, e \\ & &1) do
-    r.(Mongo.find(:mongo, type, query, pool: DBConnection.Poolboy))
+  # TODO: HANDLE $ in key by rewrite -> $ not supported in GQL
+  def list_rests(read_only_conn, type, query \\ %{}, r \\ & &1, e \\ & &1) do
+    # TODO: Filter result by read rights
+    r.(
+      Mongo.find(:mongo, type, query, pool: DBConnection.Poolboy)
+      |> Enum.map(fn i -> map_keys(i, fn i -> Regex.replace(~r/^_dlr_/, i, "$") end) end)
+    )
   end
 
   @doc """
@@ -27,15 +50,30 @@ defmodule Zcms.Resource.Rest do
       %Rest{}
 
   """
-  def get_rest(type, query, r \\ & &1, e \\ fn _, _, _ -> {:error, "Not found"} end) do
+  def get_rest(
+        read_only_conn,
+        type,
+        query,
+        r \\ & &1,
+        e \\ fn _, _, _ -> {:error, "Not found"} end
+      ) do
+    # TODO: Check read rights
+    # TODO: Create table groups and put users in setup
+    # TODO: Use redis to lookup users in groups table
     case Mongo.find_one(:mongo, type, query, pool: DBConnection.Poolboy) do
       nil ->
         e.(type, query, nil)
 
       item ->
-        r.(item)
+        r.(item |> map_keys(fn i -> Regex.replace(~r/^_dlr_/, i, "$") end))
     end
   end
+
+  defp createError(type, _, {:error, %Mongo.Error{:message => message, :code => code}}),
+    do: {:error, "Couldn't insert new #{type}; (MongoDB Error #{code}): #{message}"}
+
+  defp createError(type, _, _),
+    do: {:error, "Couldn't insert new #{type}"}
 
   @doc """
   Creates a rest.
@@ -50,22 +88,36 @@ defmodule Zcms.Resource.Rest do
 
   """
   def create_rest(
+        read_only_conn,
         type,
         argsmap,
         r \\ & &1,
-        e \\ fn type, _, _ -> {:error, "Couldn't insert new #{type}"} end
+        e \\ &createError/3
       ) do
-    case Mongo.insert_one(:mongo, type, argsmap, pool: DBConnection.Poolboy) do
+    # TODO: Check write rights on collection
+    # TODO: Add current user to creator
+    # TODO: Add current user to modified user
+    # TODO: Add current timestamp to created
+    # TODO: Add current timestamp to last modified
+    case Mongo.insert_one(
+           :mongo,
+           type,
+           argsmap |> map_keys(fn i -> Regex.replace(~r/^\$/, i, "_dlr_") end),
+           pool: DBConnection.Poolboy
+         ) do
       {:ok, %{:inserted_id => id}} -> r.(id)
       e -> e.(type, argsmap, e)
     end
   end
 
   defp updateError(type, id, _, %{:matched_count => 0, :modified_count => _}),
-    do: {:error, "Couldn't #{type} with _id=#{id}"}
+    do: {:error, "Couldn't find #{type} with _id=#{id}"}
 
   defp updateError(type, id, _, %{:matched_count => 1, :modified_count => 0}),
     do: {:error, "#{type} #{id} already in right shape"}
+
+  defp updateError(type, id, _, {:error, %Mongo.Error{:message => message, :code => code}}),
+    do: {:error, "Couldn't update #{type} with _id=#{id}; (MongoDB Error #{code}): #{message}"}
 
   defp updateError(type, id, _, _), do: {:error, "Couldn't update #{type} with _id=#{id}"}
 
@@ -81,8 +133,15 @@ defmodule Zcms.Resource.Rest do
       {:error, ...}
 
   """
-  def update_rest(type, id, map, r \\ & &1, e \\ &updateError/4) do
-    case Mongo.update_one(:mongo, type, %{:_id => BSON.ObjectId.decode!(id)}, %{"$set" => map},
+  def update_rest(read_only_conn, type, id, map, r \\ & &1, e \\ &updateError/4) do
+    # TODO: Check write rights
+    # TODO: Add current user to modified user
+    # TODO: Add current timestamp to last Modified
+    case Mongo.update_one(
+           :mongo,
+           type,
+           %{:_id => BSON.ObjectId.decode!(id)},
+           %{"$set" => map |> map_keys(fn i -> Regex.replace(~r/^\$/, i, "_dlr_") end)},
            pool: DBConnection.Poolboy
          ) do
       {:ok, %{:matched_count => 1, :modified_count => 1}} ->
@@ -90,6 +149,38 @@ defmodule Zcms.Resource.Rest do
 
       {:ok, a} ->
         e.(type, id, map, a)
+
+      q ->
+        e.(type, id, map, q)
+    end
+  end
+
+  def replace_rest(read_only_conn, type, id, map, r \\ & &1, e \\ &updateError/4) do
+    # TODO: Check write rights
+    # TODO: Add current user to modified user
+    # TODO: Add current timestamp to last Modified
+
+    metaschema = ZcmsWeb.RestController.loadAndConvertJsonSchema(type)
+    # TODO: read rights from the metaschema
+
+    if type == "schema" do
+      %{"title" => title} =
+        get_rest(read_only_conn, "schema", %{:_id => BSON.ObjectId.decode!(id)})
+
+      if title == "schema" do
+        raise "Cannot replace root-schema. Every new schema created is validated against it!"
+      end
+    end
+
+    case Mongo.find_one_and_replace(
+           :mongo,
+           type,
+           %{:_id => BSON.ObjectId.decode!(id)},
+           map |> map_keys(fn i -> Regex.replace(~r/^\$/, i, "_dlr_") end),
+           pool: DBConnection.Poolboy
+         ) do
+      {:ok, _} ->
+        r.(id)
 
       q ->
         e.(type, id, map, q)
@@ -114,7 +205,22 @@ defmodule Zcms.Resource.Rest do
       {:error, ...}
 
   """
-  def delete_rest(type, id, r \\ & &1, e \\ &deleteError/3) do
+  def delete_rest(read_only_conn, type, id, r \\ & &1, e \\ &deleteError/3) do
+    # TODO: Check write rights
+    # TODO: Add current user to modified user
+    # TODO: Add current timestamp to last Modified
+    if type == "schema" do
+      %{"title" => title} =
+        get_rest(read_only_conn, "schema", %{:_id => BSON.ObjectId.decode!(id)})
+
+      if title == "schema" do
+        raise "Cannot delete root-schema. Every new schema created is validated against it!"
+      end
+
+      ZcmsWeb.SchemaCache.clear(title)
+      IO.puts("Cleared #{title} from caching table")
+    end
+
     case Mongo.delete_one(
            :mongo,
            type,
