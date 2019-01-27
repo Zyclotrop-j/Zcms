@@ -17,4 +17,4 @@ jobs:
     steps:
       - checkout
       # specify any bash command here prefixed with `run: `
-      - run: mix deps.get
+      - run: mix local.hex --force deps.get
