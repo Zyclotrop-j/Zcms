@@ -16,5 +16,6 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
+      - run: mix local.hex --force
       # specify any bash command here prefixed with `run: `
-      - run: mix local.hex --force deps.get
+      - run: mix deps.get
