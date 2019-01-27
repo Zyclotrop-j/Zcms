@@ -28,17 +28,7 @@ config :logger, :console,
 #  ]
 config :ex_json_schema,
        :remote_schema_resolver,
-       fn url ->
-         %{
-           "type" => "object",
-           "required" => ["$id", "$ref"],
-           "properties" => %{
-             "$id" => %{"type" => "string"},
-             "$ref": %{"type" => "string"},
-             "$db": %{"type" => "string"}
-           }
-         }
-       end
+       {Zcms.Application.SchemaResolver, :resolver}
 
 # alternatively HTTPoison.get!(url).body |> Poison.decode!
 

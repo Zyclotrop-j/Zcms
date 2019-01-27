@@ -1,11 +1,12 @@
 # App artifacts
-/cms/_build
-/cms/db
-/cms/deps
-/cms/*.ez
+/_build
+/db
+/deps
+/tmp
+/*.ez
 
 # Generated on crash by the VM
-/cms/erl_crash.dump
+/erl_crash.dump
 
 # Files matching config/*.secret.exs pattern contain sensitive
 # data and you should not commit them into version control.
@@ -13,4 +14,4 @@
 # Alternatively, you may comment the line below and commit the
 # secrets files as long as you replace their contents by environment
 # variables.
-/cms/config/*.secret.exs
+/config/*.secret.exs
