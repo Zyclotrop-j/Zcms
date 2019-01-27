@@ -15,18 +15,23 @@ use Mix.Config
 # which you typically run after static files are built.
 config :zcms, ZcmsWeb.Endpoint,
   load_from_system_env: true,
-  url: [scheme: "https", host: "cms.jannes.mingram.net", port: 443],
+  url: [scheme: "https", host: "${APP_NAME}.gigalixirapp.com", port: 443],
+  # Needed for Phoenix 1.2 and 1.4. Doesn't hurt for 1.3.
+  http: [port: {:system, "PORT"}],
+  # Without this line, your app will not start the web server!
+  server: true,
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json",
-  secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
+  secret_key_base: "${SECRET_KEY_BASE}"
 
 # Do not print debug messages in production
 config :logger, level: :info
 
 config :zcms, Zcms.Repo,
   adapter: Ecto.Adapters.Postgres,
-  url: System.get_env("DATABASE_URL"),
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  url: "${DATABASE_URL}",
+  database: "",
+  pool_size: 2,
   ssl: true
 
 config :zcms, Zcms.Resource.Rest,
