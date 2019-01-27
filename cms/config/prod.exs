@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :zcms, ZcmsWeb.Endpoint,
   load_from_system_env: true,
-  url: [scheme: "https", host: "nameless-tundra-92760.herokuapp.com", port: 443],
+  url: [scheme: "https", host: "cms.jannes.mingram.net", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   cache_static_manifest: "priv/static/cache_manifest.json",
   secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
@@ -28,6 +28,23 @@ config :zcms, Zcms.Repo,
   url: System.get_env("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   ssl: true
+
+config :zcms, Zcms.Resource.Rest,
+  name: :mongo,
+  database: "Test",
+  username: System.get_env("MONGODB_PROD_USER"),
+  password: System.get_env("MONGODB_PROD_PW"),
+  seeds: [
+    "testcluster-shard-00-00-odymy.mongodb.net:27017",
+    "testcluster-shard-00-01-odymy.mongodb.net:27017",
+    "testcluster-shard-00-02-odymy.mongodb.net:27017"
+  ],
+  auth_source: "admin",
+  set_name: "TestCluster-shard-0",
+  ssl: True,
+  retryWrites: True,
+  pool: DBConnection.Poolboy,
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 # ## SSL Support
 #
@@ -59,14 +76,13 @@ config :zcms, Zcms.Repo,
 # If you are doing OTP releases, you need to instruct Phoenix
 # to start the server for all endpoints:
 #
-#     config :phoenix, :serve_endpoints, true
+config :phoenix, :serve_endpoints, true
 #
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
 #
 #     config :zcms, ZcmsWeb.Endpoint, server: true
 #
-
 
 # Configures Ueberauth's Auth0 auth provider
 # config :ueberauth, Ueberauth.Strategy.Auth0.OAuth,

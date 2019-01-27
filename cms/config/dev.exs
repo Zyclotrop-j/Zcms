@@ -56,7 +56,11 @@ config :zcms, Zcms.Repo,
   hostname: "localhost",
   pool_size: 10
 
-
+config :zcms, Zcms.Resource.Rest,
+  name: :mongo,
+  database: "Test",
+  pool: DBConnection.Poolboy,
+  pool_size: 2
 
 # config :zcms, ZcmsWeb.Router,
 #   domain: System.get_env("AUTH0_DOMAIN"),

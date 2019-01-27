@@ -105,8 +105,18 @@ defmodule Zcms.Resource.Rest do
            argsmap |> map_keys(fn i -> Regex.replace(~r/^\$/, i, "_dlr_") end),
            pool: DBConnection.Poolboy
          ) do
-      {:ok, %{:inserted_id => id}} -> r.(id)
-      e -> e.(type, argsmap, e)
+      {:ok, %{:inserted_id => id}} ->
+        if type == "schema" do
+          :ok =
+            Zcms.Application.Transformer.transformSchema(fn a, b ->
+              Mongo.find(:mongo, a, b, pool: DBConnection.Poolboy)
+            end)
+        end
+
+        r.(id)
+
+      e ->
+        e.(type, argsmap, e)
     end
   end
 
@@ -145,6 +155,13 @@ defmodule Zcms.Resource.Rest do
            pool: DBConnection.Poolboy
          ) do
       {:ok, %{:matched_count => 1, :modified_count => 1}} ->
+        if type == "schema" do
+          :ok =
+            Zcms.Application.Transformer.transformSchema(fn a, b ->
+              Mongo.find(:mongo, a, b, pool: DBConnection.Poolboy)
+            end)
+        end
+
         r.(id)
 
       {:ok, a} ->
@@ -180,6 +197,13 @@ defmodule Zcms.Resource.Rest do
            pool: DBConnection.Poolboy
          ) do
       {:ok, _} ->
+        if type == "schema" do
+          :ok =
+            Zcms.Application.Transformer.transformSchema(fn a, b ->
+              Mongo.find(:mongo, a, b, pool: DBConnection.Poolboy)
+            end)
+        end
+
         r.(id)
 
       q ->
@@ -227,9 +251,21 @@ defmodule Zcms.Resource.Rest do
            %{:_id => BSON.ObjectId.decode!(id)},
            pool: DBConnection.Poolboy
          ) do
-      {:ok, %{:deleted_count => 1}} -> r.(nil)
-      {:ok, a} -> e.(type, id, a)
-      q -> e.(type, id, q)
+      {:ok, %{:deleted_count => 1}} ->
+        if type == "schema" do
+          :ok =
+            Zcms.Application.Transformer.transformSchema(fn a, b ->
+              Mongo.find(:mongo, a, b, pool: DBConnection.Poolboy)
+            end)
+        end
+
+        r.(nil)
+
+      {:ok, a} ->
+        e.(type, id, a)
+
+      q ->
+        e.(type, id, q)
     end
   end
 end

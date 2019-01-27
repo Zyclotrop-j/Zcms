@@ -12,7 +12,9 @@ defmodule Zcms.Application do
       supervisor(Zcms.Repo, []),
       # Start the endpoint when the application starts
       supervisor(ZcmsWeb.Endpoint, []),
-      worker(Mongo, [[name: :mongo, database: "Test", pool: DBConnection.Poolboy]])
+      worker(Mongo, [
+        Application.get_env(:zcms, Zcms.Resource.Rest)
+      ])
       # Start your own worker by calling: Zcms.Worker.start_link(arg1, arg2, arg3)
       # worker(Zcms.Worker, [arg1, arg2, arg3]),
     ]
@@ -24,7 +26,28 @@ defmodule Zcms.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Zcms.Supervisor]
-    Supervisor.start_link(children, opts)
+    x = Supervisor.start_link(children, opts)
+
+    IO.puts("Setup DB.....")
+
+    Zcms.Application.Transformer.initMetaDB(
+      fn a, b ->
+        Mongo.count_documents(:mongo, a, b, pool: DBConnection.Poolboy)
+      end,
+      fn a, b ->
+        Mongo.insert_one!(:mongo, a, b, pool: DBConnection.Poolboy)
+      end
+    )
+
+    IO.puts("....Initialized DB with meta schema")
+
+    :ok =
+      Zcms.Application.Transformer.transformSchema(fn a, b ->
+        Mongo.find(:mongo, a, b, pool: DBConnection.Poolboy)
+      end)
+
+    IO.puts("....Initializing from DB done")
+    x
   end
 
   # Tell Phoenix to update the endpoint configuration

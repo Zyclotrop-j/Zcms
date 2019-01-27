@@ -45,12 +45,33 @@ defmodule Zcms.Application.Transformer do
     """
 
   def compile(name, ct) do
-    {:ok, file} = File.open(name <> ".debug", [:write])
-    IO.binwrite(file, ct)
-    File.close(file)
+    # {:ok, file} = File.open(name <> ".debug", [:write])
+    # IO.binwrite(file, ct)
+    # File.close(file)
     # Compile to memory!!!
     [{mod, _}] = Code.compile_string(ct)
     {:ok, mod}
+  end
+
+  # Insert initial schema-schema (aka meta-schema)
+  def initMetaDB(conn1, conn2) do
+    filename = "schema"
+
+    ijson =
+      File.read!("schema/#{filename}.json")
+      |> Poison.decode!()
+
+    json =
+      ijson
+      |> Map.put("meta_schema", ijson["$schema"])
+      |> Map.put("meta_id", ijson["$id"])
+      |> Map.update!("title", fn i -> Regex.replace(~r/ /, i, "") |> String.downcase() end)
+      |> Map.drop(["$schema", "$id"])
+
+    case conn1.("schema", %{"title" => json["title"]}) do
+      {:ok, 1} -> :ok
+      other -> conn2.("schema", json)
+    end
   end
 
   def transformSchema(conn) do

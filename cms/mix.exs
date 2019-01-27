@@ -55,7 +55,8 @@ defmodule Zcms.Mixfile do
       {:poolboy, ">= 0.0.0"},
       {:dataloader, "~> 1.0.0"},
       {:odgn_json_pointer, "~> 2.4"},
-      {:ex_json_schema, "~> 0.5.4"}
+      {:ex_json_schema, "~> 0.5.4"},
+      {:distillery, "~> 1.5.5"}
     ]
   end
 
