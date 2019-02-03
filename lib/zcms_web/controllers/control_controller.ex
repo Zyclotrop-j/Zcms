@@ -92,7 +92,7 @@ defmodule ZcmsWeb.ControlController do
            "post" => %{
              "summary" => "Create a new #{x}",
              "requestBody" => %{
-               "required" => True,
+               "required" => true,
                "content" => %{
                  "application/json" => %{
                    "schema" => %{
@@ -136,7 +136,7 @@ defmodule ZcmsWeb.ControlController do
              %{
                "name" => "id",
                "in" => "path",
-               "required" => True,
+               "required" => true,
                "description" => "Item id of the #{x}",
                "schema" => %{
                  "type" => "string",
@@ -164,7 +164,7 @@ defmodule ZcmsWeb.ControlController do
            "put" => %{
              "summary" => "Overwrite a #{x} with a new #{x}",
              "requestBody" => %{
-               "required" => True,
+               "required" => true,
                "content" => %{
                  "application/json" => %{
                    "schema" => %{
@@ -191,7 +191,7 @@ defmodule ZcmsWeb.ControlController do
            "patch" => %{
              "summary" => "Merge existing #{x} with the one provided in the body",
              "requestBody" => %{
-               "required" => True,
+               "required" => true,
                "content" => %{
                  "application/json" => %{
                    "schema" => %{
@@ -320,6 +320,6 @@ defmodule ZcmsWeb.ControlController do
 
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(:ok, s |> Poison.encode!())
+    |> send_resp(:ok, s |> Poison.encode!(pretty: true))
   end
 end
