@@ -56,6 +56,8 @@ defmodule Zcms.Application.Transformer do
   # Insert initial schema-schema (aka meta-schema)
   @external_resource "priv/schema.json"
   @schema_contents File.read! "priv/schema.json"
+  def schema_contents, do: @schema_contents
+
   def initMetaDB(conn1, conn2) do
     filename = "schema"
 
