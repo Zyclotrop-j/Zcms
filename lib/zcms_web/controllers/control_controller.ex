@@ -43,8 +43,9 @@ defmodule ZcmsWeb.ControlController do
 
     IO.inspect(r)
 
+    # wait for mongoDB elixir to be update -> gotta have own listCollections command!
     r =
-      r
+      r["cursor"]["firstBatch"]
       |> Stream.filter(fn coll -> coll["type"] == "collection" end)
       |> Stream.map(fn coll -> coll["name"] end)
       |> Enum.to_list()
