@@ -67,7 +67,7 @@
      localStorage.setItem('isLoggedIn', 'true');
      (x => { window.fetch = (a, b, ...args) => x(a, { ...b, headers: { "authorization": "Bearer " + authResult.idToken, ...(b.headers || {}) } }, ...args) })(window.fetch);
      const ostr = '(x => { window.fetch = (a, b, ...args) => x(a, { ...b, headers: { "authorization": "Bearer " + authResult.idToken, ...(b.headers || {}) } }, ...args) })(window.fetch)';
-     loginres.innerHTML = "<div><p>Use the following code (just paste it to the console) to make your requests authenticated in other tabs</p><p>To inspect the graphQL, I suggest using <a href="https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij">the graphiql Chrome extension</a></p></div>"
+     loginres.innerHTML = '<div><p>Use the following code (just paste it to the console) to make your requests authenticated in other tabs</p><p>To inspect the graphQL, I suggest using <a href="https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij">the graphiql Chrome extension</a></p></div>'
      loginres.innerHTML += "<pre>" + ostr + "</pre>";
      loginres.innerHTML += "<div>Full result:</div><pre>" + JSON.stringify(authResult, null, "  ") + "</pre>";
      // Set the time that the access token will expire at
