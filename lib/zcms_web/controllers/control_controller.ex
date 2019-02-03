@@ -143,9 +143,7 @@ defmodule ZcmsWeb.ControlController do
           r
           |> Map.new(fn x ->
             schemaid =
-              allschemas
-              |> Enum.find(fn x -> x["title"] == x end)["_id"]
-              |> BSON.ObjectId.encode!()
+              BSON.ObjectId.encode!(Enum.find(allschemas, fn x -> x["title"] == x end)["_id"])
 
             {"/#{x}",
              %{
