@@ -56,7 +56,7 @@ defmodule ZcmsWeb.ControlController do
 
     allschemas = Zcms.Resource.Rest.list_rests("schema")
 
-    r = %{
+    s = %{
       "openapi" => "3.0.0",
       "info" => %{
         "title" => Atom.to_string(app),
@@ -295,6 +295,6 @@ defmodule ZcmsWeb.ControlController do
 
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(:ok, r |> Poison.encode!())
+    |> send_resp(:ok, s |> Poison.encode!())
   end
 end
