@@ -48,13 +48,14 @@ defmodule ZcmsWeb.ControlController do
       )
 
     # wait for mongoDB elixir to be update -> gotta have own listCollections command!
+    # see https://github.com/ankhers/mongodb/blame/79e0e4426562a6cabf5917f7b9eda41f14c5920b/lib/mongo.ex#L821
     r =
       r["cursor"]["firstBatch"]
       |> Stream.filter(fn coll -> coll["type"] == "collection" end)
       |> Stream.map(fn coll -> coll["name"] end)
       |> Enum.to_list()
 
-    allschemas = Zcms.Resource.Rest.list_rests("schema")
+    allschemas = Zcms.Resource.Rest.list_rests(conn, "schema")
 
     s = %{
       "openapi" => "3.0.0",
