@@ -37,7 +37,16 @@ defmodule ZcmsWeb.ControlController do
 
   def apiendpoints(conn, _params) do
     r =
-      Mongo.show_collections!(:mongo, %{:nameOnly => True}, pool: DBConnection.Poolboy)
+      Mongo.command!(:mongo, %{:listCollections => 1, :nameOnly => True},
+        pool: DBConnection.Poolboy
+      )
+
+    IO.inspect(r)
+
+    r =
+      r
+      |> Stream.filter(fn coll -> coll["type"] == "collection" end)
+      |> Stream.map(fn coll -> coll["name"] end)
       |> Enum.to_list()
 
     IO.inspect(r)
@@ -48,6 +57,6 @@ defmodule ZcmsWeb.ControlController do
     "apig/graphql"
     "api"
     "login"
-    send_resp(conn, :ok, r |> Poison.encode!())
+    send_resp(conn, :ok, r)
   end
 end
