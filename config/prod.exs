@@ -29,8 +29,10 @@ config :logger, level: :info
 
 config :zcms, Zcms.Repo,
   adapter: Ecto.Adapters.Postgres,
-  url: "${DATABASE_URL}",
-  database: "",
+  username: System.get_env("DB_USER"),
+  password: System.get_env("DB_PASSWORD"),
+  database: System.get_env("DB_NAME"),
+  hostname: System.get_env("DB_HOSTNAME"),
   pool_size: 2,
   ssl: true
 
