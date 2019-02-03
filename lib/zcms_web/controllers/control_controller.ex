@@ -15,6 +15,8 @@ defmodule ZcmsWeb.ControlController do
 
   def meta(conn, _params) do
     settings = """
+    Signed in as "#{conn.user_id}"
+
     LIBCLUSTER_KUBERNETES_NODE_BASENAME=#{System.get_env("LIBCLUSTER_KUBERNETES_NODE_BASENAME")}
     LIBCLUSTER_KUBERNETES_SELECTOR=#{System.get_env("LIBCLUSTER_KUBERNETES_SELECTOR")}
     AUTH0_DOMAIN=#{System.get_env("AUTH0_DOMAIN")}
