@@ -37,17 +37,17 @@ defmodule ZcmsWeb.ControlController do
 
   def apiendpoints(conn, _params) do
     r =
-      Mongo.command!(:mongo, %{:listCollections => 1, :nameOnly => True},
-        pool: DBConnection.Poolboy
-      )
+      Mongo.show_collections!(:mongo, %{:nameOnly => True}, pool: DBConnection.Poolboy)
       |> Enum.to_list()
-      |> Poison.encode!()
 
     IO.inspect(r)
+    # |> Enum.map(fn i -> i["name"] end)
+    # |> Poison.encode!()
+
     "control/meta"
     "apig/graphql"
     "api"
     "login"
-    send_resp(conn, :ok, r)
+    send_resp(conn, :ok, r |> Poison.encode!())
   end
 end
