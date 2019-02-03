@@ -142,7 +142,7 @@ defmodule ZcmsWeb.ControlController do
         "api" =>
           r
           |> Map.new(fn x ->
-            IO.inspect(Enum.find(allschemas, fn x -> x["title"] == x end))
+            IO.inspect(allschemas |> Enum.to_list())
 
             schemaid =
               BSON.ObjectId.encode!(Enum.find(allschemas, fn x -> x["title"] == x end)["_id"])
