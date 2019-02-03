@@ -85,13 +85,13 @@
          localStorage.setItem('isLoggedIn', 'true');
          (x => { window.fetch = (a, b, ...args) => x(a, { ...b, headers: { "authorization": "Bearer " + authResult.idToken, ...(b.headers || {}) } }, ...args) })(window.fetch);
          const ostr = '(x => { window.fetch = (a, b, ...args) => x(a, { ...(b || {}), headers: { "authorization": "Bearer " + authResult.idToken, ...((b || {}).headers || {}) } }, ...args) })(window.fetch)';
-         loginres && loginres.innerHTML = '<div><p>Use the following code (just paste it to the console) to make your requests authenticated in other tabs</p><p>To inspect the graphQL, I suggest using <a href="https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij">the graphiql Chrome extension</a></p></div>'
-         loginres && loginres.innerHTML += "<pre>" + ostr + "</pre>";
-         loginres && loginres.innerHTML += "<div>Full result:</div><pre>" + JSON.stringify(authResult, null, "  ") + "</pre>";
+         if(loginres)  loginres.innerHTML = '<div><p>Use the following code (just paste it to the console) to make your requests authenticated in other tabs</p><p>To inspect the graphQL, I suggest using <a href="https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij">the graphiql Chrome extension</a></p></div>'
+         if(loginres)  loginres.innerHTML += "<pre>" + ostr + "</pre>";
+         if(loginres)  loginres.innerHTML += "<div>Full result:</div><pre>" + JSON.stringify(authResult, null, "  ") + "</pre>";
 
-         endpointdiv && endpointdiv.innerHTML = "....fetching endpoints....";
+         if(endpointdiv)  endpointdiv.innerHTML = "....fetching endpoints....";
          fetch("/control/api", {}).then(i => i.json()).then(i => {
-            endpointdiv && endpointdiv.innerHTML = "<h2>Important endpoints: </h2><div><pre>" + JSON.stringify(i, null, "  ") + "</pre></div>"
+            if(endpointdiv)  endpointdiv.innerHTML = "<h2>Important endpoints: </h2><div><pre>" + JSON.stringify(i, null, "  ") + "</pre></div>"
          });
          // Set the time that the access token will expire at
          expiresAt = JSON.stringify(
@@ -122,7 +122,7 @@
          accessToken = '';
          idToken = '';
          expiresAt = 0;
-         loginres && loginres.innerHTML = "Logged out successfully";
+         if(loginres)  loginres.innerHTML = "Logged out successfully";
          displayButtons();
         }
 
