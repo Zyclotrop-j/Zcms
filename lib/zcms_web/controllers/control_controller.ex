@@ -4,8 +4,8 @@ defmodule ZcmsWeb.ControlController do
   @version Mix.Project.config()[:version]
   def version(), do: @version
 
-  @title Mix.Project.config()[:app]
-  def app(), do: @app
+  @app Mix.Project.config()[:app]
+  def appldesc(), do: @app
 
   def index(conn, _params) do
     :ok =
@@ -33,7 +33,7 @@ defmodule ZcmsWeb.ControlController do
     MONGO_HOST=#{System.get_env("MONGO_HOST")}
     jwks=#{System.get_env("jwks")}
     version=#{version}
-    app=#{Atom.to_string(app)}
+    app=#{Atom.to_string(appldesc)}
     """
 
     conn
@@ -60,7 +60,7 @@ defmodule ZcmsWeb.ControlController do
     s = %{
       "openapi" => "3.0.0",
       "info" => %{
-        "title" => Atom.to_string(app),
+        "title" => Atom.to_string(appldesc),
         "version" => version
       },
       "servers" => [
