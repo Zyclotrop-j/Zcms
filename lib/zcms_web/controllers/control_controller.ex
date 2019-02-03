@@ -81,7 +81,7 @@ defmodule ZcmsWeb.ControlController do
                        "type" => "array",
                        "items" => %{
                          # # TODO: Add index and get on title
-                         "$ref" => "/app/schema/#{schemaid}"
+                         "$ref" => "/api/schema/#{schemaid}"
                        }
                      }
                    }
@@ -97,7 +97,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      # # TODO: Add index and get on title
-                     "$ref" => "/app/schema/#{schemaid}"
+                     "$ref" => "/api/schema/#{schemaid}"
                    }
                  }
                }
@@ -109,7 +109,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "$ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/api/schema/#{schemaid}"
                      }
                    }
                  }
@@ -154,7 +154,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "$ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/api/schema/#{schemaid}"
                      }
                    }
                  }
@@ -169,7 +169,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      # # TODO: Add index and get on title
-                     "$ref" => "/app/schema/#{schemaid}"
+                     "$ref" => "/api/schema/#{schemaid}"
                    }
                  }
                }
@@ -181,7 +181,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "$ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/api/schema/#{schemaid}"
                      }
                    }
                  }
@@ -196,7 +196,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      # # TODO: Add index and get on title
-                     "$ref" => "/app/schema/#{schemaid}"
+                     "$ref" => "/api/schema/#{schemaid}"
                    }
                  }
                }
@@ -208,7 +208,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "$ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/api/schema/#{schemaid}"
                      }
                    }
                  }
@@ -315,11 +315,16 @@ defmodule ZcmsWeb.ControlController do
       "servers" => [
         %{"url" => "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/"}
       ],
-      "paths" => otherpaths |> Map.merge(apidefsinner) |> Map.merge(apidefs)
+      "paths" => apidefs |> Map.merge(apidefsinner) |> Map.merge(otherpaths)
     }
+
+    prettify =
+      conn.query_string
+      |> URI.decode_query()
+      |> Map.get("pretty", false)
 
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(:ok, s |> Poison.encode!(pretty: true))
+    |> send_resp(:ok, s |> Poison.encode!(pretty: prettify))
   end
 end
