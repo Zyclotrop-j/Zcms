@@ -41,6 +41,7 @@ defmodule ZcmsWeb.ControlController do
         pool: DBConnection.Poolboy
       )
 
+    IO.inspect(r)
     "control/meta"
     "apig/graphql"
     "api"
