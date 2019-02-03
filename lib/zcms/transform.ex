@@ -210,9 +210,9 @@ defmodule Zcms.Application.Transformer do
   def initMetaDB(conn1, conn2) do
     filename = "schema"
 
-    ijson = Poison.decode!(xischema)
-      # File.read!("schema/#{filename}.json")
-      # |> Poison.decode!()
+    ijson =
+      File.read!(Path.join(:code.priv_dir(:my_app), "#{filename}.json"))
+      |> Poison.decode!()
 
     json =
       ijson

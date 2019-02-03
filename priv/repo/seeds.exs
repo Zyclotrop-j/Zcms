@@ -169,9 +169,9 @@ xischema = """
 
 filename = "schema"
 
-ijson = Poison.decode!(xischema)
-  # File.read!("schema/#{filename}.json")
-  # |> Poison.decode!()
+ijson =
+  File.read!(Path.join(:code.priv_dir(:my_app), "#{filename}.json"))
+  |> Poison.decode!()
 
 json =
   ijson
