@@ -64,7 +64,7 @@ defmodule ZcmsWeb.ControlController do
         "version" => version
       },
       "servers" => [
-        %{"url" => "#{System.get_env(APP_NAME)}.gigalixirapp.com"}
+        %{"url" => "#{System.get_env("APP_NAME")}.gigalixirapp.com"}
       ],
       "paths" => %{
         "/control" => %{
