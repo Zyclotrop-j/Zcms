@@ -40,6 +40,8 @@ defmodule ZcmsWeb.ControlController do
       Mongo.command!(:mongo, %{:listCollections => 1, :nameOnly => True},
         pool: DBConnection.Poolboy
       )
+      |> Enum.to_list()
+      |> Poison.encode!()
 
     IO.inspect(r)
     "control/meta"
