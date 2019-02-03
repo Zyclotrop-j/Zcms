@@ -14,8 +14,13 @@ defmodule ZcmsWeb.ControlController do
   end
 
   def meta(conn, _params) do
+    sub =
+      conn.assigns
+      |> Map.get(:joken_claims)
+      |> Map.get("sub")
+
     settings = """
-    Signed in as "#{conn.user_id}"
+    Signed in as "#{sub}"
 
     LIBCLUSTER_KUBERNETES_NODE_BASENAME=#{System.get_env("LIBCLUSTER_KUBERNETES_NODE_BASENAME")}
     LIBCLUSTER_KUBERNETES_SELECTOR=#{System.get_env("LIBCLUSTER_KUBERNETES_SELECTOR")}

@@ -21,8 +21,6 @@ defmodule ZcmsWeb.Router do
       verify: &ZcmsWeb.Router.verify_function/1,
       on_error: &ZcmsWeb.Router.autherror_function/2
     )
-
-    plug(:assignuser, %{})
   end
 
   pipeline :api do
@@ -38,19 +36,6 @@ defmodule ZcmsWeb.Router do
       message: "You need an access token",
       detail: %{message: message, loginurl: System.get_env("AUTH0_DOMAIN")},
       conn: conn
-  end
-
-  def assignuser(conn) do
-    sub =
-      conn.assigns
-      |> Map.get(:joken_claims)
-      |> Map.get("sub")
-
-    IO.puts("putting user " <> sub)
-
-    conn
-    |> Plug.Conn.put_resp_header("x-user_id", sub)
-    |> assign(:user_id, sub)
   end
 
   def verify_function(conn) do
