@@ -8,4 +8,8 @@ defmodule ZcmsWeb.PageController do
   def login(conn, _params) do
     render(conn, "login.html")
   end
+
+  def swaggerui(conn, _params) do
+    render(conn, "swaggerui.html")
+  end
 end

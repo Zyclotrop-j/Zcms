@@ -1,0 +1,15 @@
+<div style="display: 100vw; height: 80wh" id="swagger-ui" ></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.20.6/swagger-ui-standalone-preset.js"></script>
+<script>
+  var SwaggerUIBundle = require('swagger-ui-dist').SwaggerUIBundle;
+
+  const ui = SwaggerUIBundle({
+      url: "/control/api",
+      dom_id: '#swagger-ui',
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIBundle.SwaggerUIStandalonePreset
+      ],
+      layout: "StandaloneLayout"
+    });
+</script>
