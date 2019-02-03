@@ -45,7 +45,10 @@ defmodule ZcmsWeb.Router do
       |> Map.get("sub")
 
     IO.puts("putting user " <> sub)
-    plug(:user_id, sub)
+
+    conn
+    |> Plug.Conn.put_resp_header("x-user_id", sub)
+    |> assign(:user_id, sub)
   end
 
   def verify_function(conn) do
