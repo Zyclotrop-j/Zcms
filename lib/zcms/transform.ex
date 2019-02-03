@@ -59,18 +59,20 @@ defmodule Zcms.Application.Transformer do
   def schema_contents, do: @schema_contents
 
   def initMetaDB(conn1, conn2) do
+    filename = "schema"
+
+    ijson = Poison.decode!(schema_contents)
+
+    json =
+      ijson
+      |> Map.put("meta_schema", ijson["$schema"])
+      |> Map.put("meta_id", ijson["$id"])
+      |> Map.update!("title", fn i -> Regex.replace(~r/ /, i, "") |> String.downcase() end)
+      |> Map.drop(["$schema", "$id"])
+
     case conn1.("schema", %{"title" => json["title"]}) do
       {:ok, 1} -> :ok
-      other ->
-        filename = "schema"
-        ijson = Poison.decode!(schema_contents)
-        json =
-          ijson
-          |> Map.put("meta_schema", ijson["$schema"])
-          |> Map.put("meta_id", ijson["$id"])
-          |> Map.update!("title", fn i -> Regex.replace(~r/ /, i, "") |> String.downcase() end)
-          |> Map.drop(["$schema", "$id"])
-        conn2.("schema", json)
+      other -> conn2.("schema", json)
     end
   end
 

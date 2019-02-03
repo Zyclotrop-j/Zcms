@@ -33,8 +33,8 @@ config :zcms, Zcms.Repo,
   password: System.get_env("DB_PASSWORD"),
   database: System.get_env("DB_NAME"),
   hostname: System.get_env("DB_HOSTNAME"),
-  pool_size: 2,
-  ssl: true
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  ssl: false
 
 config :zcms, Zcms.Resource.Rest,
   name: :mongo,
