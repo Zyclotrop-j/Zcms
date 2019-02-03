@@ -142,6 +142,7 @@ defmodule ZcmsWeb.ControlController do
         "/api" =>
           r
           |> Map.new(fn x ->
+            IO.inspect(x)
             IO.inspect(allschemas |> Enum.to_list())
             IO.inspect(allschemas |> Enum.to_list() |> Enum.find(fn x -> x["title"] == x end))
 
