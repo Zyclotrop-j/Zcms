@@ -38,6 +38,10 @@
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <script src="https://cdn.auth0.com/js/auth0/9.5.1/auth0.min.js"></script>
     <script>
+      const cbx = [];
+      window.onLogin = function(f) {
+        cbx.push(f);
+      }
       window.addEventListener('load', function() {
         var idToken;
         var accessToken;
@@ -93,6 +97,9 @@
          fetch("/control/api", {}).then(i => i.json()).then(i => {
             if(endpointdiv)  endpointdiv.innerHTML = "<h2>Endpoints: </h2><div><pre>" + JSON.stringify(i, null, "  ") + "</pre></div>"
          });
+         while(cbx.length) {
+           cbx.pop()();
+         }
          // Set the time that the access token will expire at
          expiresAt = JSON.stringify(
            authResult.expiresIn * 1000 + new Date().getTime()
