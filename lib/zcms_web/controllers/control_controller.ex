@@ -34,4 +34,17 @@ defmodule ZcmsWeb.ControlController do
 
     send_resp(conn, :ok, settings)
   end
+
+  def apiendpoints(conn, _params) do
+    r =
+      Mongo.command!(:mongo, %{:listCollections => 1, :nameOnly => True},
+        pool: DBConnection.Poolboy
+      )
+
+    "control/meta"
+    "apig/graphql"
+    "api"
+    "login"
+    send_resp(conn, :ok, r)
+  end
 end

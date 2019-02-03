@@ -7,7 +7,15 @@
 </button>
 
 <div id="home-view">
-  <h4></h4>
+  <h2>Important endpoints: </h2>
+  <div><ul>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul></div>
+  <h2>Current status:</h2>
+  <b class="status"></b>
   <div id="login-result"></div>
 </div>
 
@@ -26,7 +34,7 @@
       redirectUri: window.location.href
     });
 
-    var loginStatus = document.querySelector('#home-view h4');
+    var loginStatus = document.querySelector('#home-view .status');
     var loginBtn = document.getElementById('btn-login');
     var logoutBtn = document.getElementById('btn-logout');
     var loginres = document.getElementById('login-result');
@@ -57,7 +65,11 @@
     function localLogin(authResult) {
      // Set isLoggedIn flag in localStorage
      localStorage.setItem('isLoggedIn', 'true');
-     loginres.innerHTML = "<pre>" + JSON.stringify(authResult, null, "  ") + "</pre>"
+     (x => { window.fetch = (a, b, ...args) => x(a, { ...b, headers: { "authorization": "Bearer " + authResult.idToken, ...(b.headers || {}) } }, ...args) })(window.fetch);
+     const ostr = "(x => { window.fetch = (a, b, ...args) => x(a, { ...b, headers: { "authorization": "Bearer " + authResult.idToken, ...(b.headers || {}) } }, ...args) })(window.fetch)";
+     loginres.innerHTML = "<div><p>Use the following code (just paste it to the console) to make your requests authenticated in other tabs</p><p>To inspect the graphQL, I suggest using <a href="https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij">the graphiql Chrome extension</a></p></div>"
+     loginres.innerHTML += "<pre>" + ostr + "</pre>";
+     loginres.innerHTML += "<div>Full result:</div><pre>" + JSON.stringify(authResult, null, "  ") + "</pre>";
      // Set the time that the access token will expire at
      expiresAt = JSON.stringify(
        authResult.expiresIn * 1000 + new Date().getTime()

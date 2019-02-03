@@ -92,6 +92,8 @@ defmodule ZcmsWeb.Router do
 
     get("/", PageController, :index)
     get("/login", PageController, :login)
+
+    forward("/graphiql", Absinthe.Plug.GraphiQL, schema: ZcmsWeb.Schema)
   end
 
   # Other scopes may use custom stacks.
@@ -109,11 +111,11 @@ defmodule ZcmsWeb.Router do
   scope "/apig" do
     pipe_through([:api, :auth, :graphql])
     forward("/graphql", Absinthe.Plug, schema: ZcmsWeb.Schema)
-    forward("/graphiql", Absinthe.Plug.GraphiQL, schema: ZcmsWeb.Schema)
   end
 
   scope "/control", ZcmsWeb do
     pipe_through([:jsonhtml, :auth])
+    get("/api", ControlController, :apiendpoints)
     get("/meta", ControlController, :meta)
     get("/recompile", ControlController, :index)
   end
