@@ -91,6 +91,7 @@ defmodule ZcmsWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
+    get("/login", PageController, :login)
   end
 
   # Other scopes may use custom stacks.
@@ -115,7 +116,6 @@ defmodule ZcmsWeb.Router do
   end
 
   scope "/control", ZcmsWeb do
-    # Use the default browser stack
     pipe_through([:jsonhtml, :auth])
     get("/meta", ControlController, :meta)
     get("/recompile", ControlController, :index)
