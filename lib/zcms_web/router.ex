@@ -38,7 +38,7 @@ defmodule ZcmsWeb.Router do
       conn: conn
   end
 
-  def assignuser(conn) do
+  pipeline assignuser(conn) do
     sub =
       conn.assigns
       |> Map.get(:joken_claims)
