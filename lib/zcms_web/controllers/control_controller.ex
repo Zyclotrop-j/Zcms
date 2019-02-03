@@ -80,7 +80,7 @@ defmodule ZcmsWeb.ControlController do
                        "type" => "array",
                        "items" => %{
                          # # TODO: Add index and get on title
-                         "ref" => "/app/schema/#{schemaid}"
+                         "$ref" => "/app/schema/#{schemaid}"
                        }
                      }
                    }
@@ -96,7 +96,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      # # TODO: Add index and get on title
-                     "ref" => "/app/schema/#{schemaid}"
+                     "$ref" => "/app/schema/#{schemaid}"
                    }
                  }
                }
@@ -107,7 +107,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/app/schema/#{schemaid}"
                      }
                    }
                  }
@@ -151,7 +151,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/app/schema/#{schemaid}"
                      }
                    }
                  }
@@ -166,7 +166,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      # # TODO: Add index and get on title
-                     "ref" => "/app/schema/#{schemaid}"
+                     "$ref" => "/app/schema/#{schemaid}"
                    }
                  }
                }
@@ -177,7 +177,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/app/schema/#{schemaid}"
                      }
                    }
                  }
@@ -192,7 +192,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      # # TODO: Add index and get on title
-                     "ref" => "/app/schema/#{schemaid}"
+                     "$ref" => "/app/schema/#{schemaid}"
                    }
                  }
                }
@@ -203,7 +203,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        # # TODO: Add index and get on title
-                       "ref" => "/app/schema/#{schemaid}"
+                       "$ref" => "/app/schema/#{schemaid}"
                      }
                    }
                  }
@@ -255,7 +255,7 @@ defmodule ZcmsWeb.ControlController do
                 "application/json" => %{
                   "schema" => %{
                     # Apperantly they didn't publish the 3.0.0 not yet :(
-                    "ref" => "http://swagger.io/v2/schema.json"
+                    "$ref" => "http://swagger.io/v2/schema.json"
                   }
                 }
               }
