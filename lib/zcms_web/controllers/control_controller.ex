@@ -141,13 +141,15 @@ defmodule ZcmsWeb.ControlController do
         },
         "/api" =>
           r
+          |> Enum.filter(fn rs ->
+            Enum.any?(allschemas, fn schema -> schema["title"] == rs end)
+          end)
           |> Map.new(fn x ->
             IO.inspect(x)
             IO.inspect(allschemas |> Enum.to_list())
 
             IO.inspect(
               allschemas
-              |> Enum.to_list()
               |> Enum.find(fn schema -> schema["title"] == x end)
             )
 
