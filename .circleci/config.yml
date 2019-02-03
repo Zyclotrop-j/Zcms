@@ -16,14 +16,14 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-      - run: mix local.hex --force
-      - run: mix local.rebar --force
-      - run: mix deps.get
-      - run: mix release --env=prod
+      # - run: mix local.hex --force
+      # - run: mix local.rebar --force
+      # - run: mix deps.get
+      # - run: mix release --env=prod
       # - run: sudo apt-get update
       # - run: sudo apt-get install -y python-pip
       # - run: sudo pip install gigalixir --ignore-installed six
-      - run: mix phx.digest
+      # - run: mix phx.digest
       - run:
           name: Set app name # See https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-shell-command
           command: |
