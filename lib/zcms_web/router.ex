@@ -27,6 +27,10 @@ defmodule ZcmsWeb.Router do
     plug(:accepts, ["json"])
   end
 
+  pipeline :jsonhtml do
+    plug(:accepts, ["json", "html"])
+  end
+
   def autherror_function(conn, message) do
     raise ZcmsWeb.Unauthenticated,
       message: "You need an access token",
@@ -92,7 +96,7 @@ defmodule ZcmsWeb.Router do
   # Other scopes may use custom stacks.
   scope "/api", ZcmsWeb do
     # , :auth
-    pipe_through([:api])
+    pipe_through([:api, :auth])
     get("/:resource", RestController, :index)
     get("/:resource/:id", RestController, :show)
     post("/:resource", RestController, :create)
@@ -102,7 +106,7 @@ defmodule ZcmsWeb.Router do
   end
 
   scope "/apig" do
-    pipe_through([:api, :graphql])
+    pipe_through([:api, :auth, :graphql])
     # sub = conn.assigns
     # |> Map.get(:joken_claims)
     # |> Map.get("sub")
@@ -112,8 +116,8 @@ defmodule ZcmsWeb.Router do
 
   scope "/control", ZcmsWeb do
     # Use the default browser stack
-    pipe_through(:browser)
-
+    pipe_through([:jsonhtml, :auth])
+    get("/meta", ControlController, :meta)
     get("/recompile", ControlController, :index)
   end
 end

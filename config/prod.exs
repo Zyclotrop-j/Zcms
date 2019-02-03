@@ -33,25 +33,32 @@ config :zcms, Zcms.Repo,
   password: System.get_env("DB_PASSWORD"),
   database: System.get_env("DB_NAME"),
   hostname: System.get_env("DB_HOSTNAME"),
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "2"),
+  pool_size:
+    String.to_integer(System.get_env("PGSQL_POOL_SIZE") || System.get_env("POOL_SIZE") || "5"),
   ssl: false
 
 config :zcms, Zcms.Resource.Rest,
   name: :mongo,
-  database: "Test",
+  # "Test",
+  database: System.get_env("MONGODB_NAME"),
   username: System.get_env("MONGODB_PROD_USER"),
   password: System.get_env("MONGODB_PROD_PW"),
   seeds: [
-    "testcluster-shard-00-00-odymy.mongodb.net:27017",
-    "testcluster-shard-00-01-odymy.mongodb.net:27017",
-    "testcluster-shard-00-02-odymy.mongodb.net:27017"
+    # "testcluster-shard-00-00-odymy.mongodb.net:27017",
+    System.get_env("MONGO_HOST"),
+    # "testcluster-shard-00-01-odymy.mongodb.net:27017",
+    System.get_env("MONGO_HOST_1"),
+    # "testcluster-shard-00-02-odymy.mongodb.net:27017"
+    System.get_env("MONGO_HOST_2")
   ],
   auth_source: "admin",
-  set_name: "TestCluster-shard-0",
+  # { }"TestCluster-shard-0",
+  set_name: System.get_env("MONGO_SETNAME"),
   ssl: True,
   retryWrites: True,
   pool: DBConnection.Poolboy,
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+  pool_size:
+    String.to_integer(System.get_env("MONGO_POOL_SIZE") || System.get_env("POOL_SIZE") || "10")
 
 # ## SSL Support
 #
