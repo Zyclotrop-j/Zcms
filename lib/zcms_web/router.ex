@@ -44,17 +44,13 @@ defmodule ZcmsWeb.Router do
       |> Map.get(:joken_claims)
       |> Map.get("sub")
 
+    IO.puts("putting user " <> sub)
     plug(:user_id, sub)
   end
 
   def verify_function(conn) do
     a = "-----BEGIN CERTIFICATE-----"
     z = "-----END CERTIFICATE-----"
-
-    # ttl = 10 hours
-    {:ok, keylist} =
-      ZcmsWeb.SimpleCache.get(HTTPoison, :get!, [System.get_env("jwks")], ttl: 3600).body
-      |> Poison.decode()
 
     ["Bearer " <> bearer] = get_req_header(conn, "authorization")
 
@@ -63,6 +59,11 @@ defmodule ZcmsWeb.Router do
       |> String.split(".")
       |> hd
       |> Base.decode64!()
+      |> Poison.decode()
+
+    # ttl = 10 hours
+    {:ok, keylist} =
+      ZcmsWeb.SimpleCache.get(HTTPoison, :get!, [System.get_env("jwks")], ttl: 3600).body
       |> Poison.decode()
 
     matchingKey =
