@@ -57,6 +57,7 @@
     function localLogin(authResult) {
      // Set isLoggedIn flag in localStorage
      localStorage.setItem('isLoggedIn', 'true');
+     loginres.innerHTML = "<pre>" + JSON.stringify(authResult, null, "  ") + "</pre>"
      // Set the time that the access token will expire at
      expiresAt = JSON.stringify(
        authResult.expiresIn * 1000 + new Date().getTime()
@@ -69,7 +70,6 @@
      webAuth.checkSession({}, (err, authResult) => {
        if (authResult && authResult.accessToken && authResult.idToken) {
          localLogin(authResult);
-         loginres.innerHTML = "<pre>" + JSON.stringify(authResult, null, "  ") + "</pre>"
        } else if (err) {
          alert(
              'Could not get a new token '  + err.error + ':' + err.error_description + '.'
