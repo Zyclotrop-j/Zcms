@@ -21,6 +21,8 @@ defmodule ZcmsWeb.Router do
       verify: &ZcmsWeb.Router.verify_function/1,
       on_error: &ZcmsWeb.Router.autherror_function/2
     )
+
+    plug(:assignuser, %{})
   end
 
   pipeline :api do
@@ -37,8 +39,6 @@ defmodule ZcmsWeb.Router do
       detail: %{message: message, loginurl: System.get_env("AUTH0_DOMAIN")},
       conn: conn
   end
-
-  plug(:assignuser, %{})
 
   def assignuser(conn) do
     sub =
@@ -112,7 +112,7 @@ defmodule ZcmsWeb.Router do
   # Other scopes may use custom stacks.
   scope "/api", ZcmsWeb do
     # , :auth
-    pipe_through([:api, :auth, :assignuser])
+    pipe_through([:api, :auth])
     get("/:resource", RestController, :index)
     get("/:resource/:id", RestController, :show)
     post("/:resource", RestController, :create)
@@ -122,13 +122,13 @@ defmodule ZcmsWeb.Router do
   end
 
   scope "/apig" do
-    pipe_through([:api, :auth, :assignuser, :graphql])
+    pipe_through([:api, :auth, :graphql])
     forward("/graphql", Absinthe.Plug, schema: ZcmsWeb.Schema)
     forward("/graphiql", Absinthe.Plug.GraphiQL, schema: ZcmsWeb.Schema)
   end
 
   scope "/control", ZcmsWeb do
-    pipe_through([:jsonhtml, :assignuser, :auth])
+    pipe_through([:jsonhtml, :auth])
     get("/meta", ControlController, :meta)
     get("/recompile", ControlController, :index)
   end
