@@ -57,6 +57,249 @@ defmodule ZcmsWeb.ControlController do
 
     allschemas = Zcms.Resource.Rest.list_rests(conn, "schema")
 
+    apidefs =
+      r
+      |> Enum.filter(fn rs ->
+        Enum.any?(allschemas, fn schema -> schema["title"] == rs end)
+      end)
+      |> Map.new(fn x ->
+        schemaid =
+          BSON.ObjectId.encode!(
+            Enum.find(allschemas, fn schema -> schema["title"] == x end)["_id"]
+          )
+
+        {"/api/#{x}",
+         %{
+           "get" => %{
+             "summary" => "Index all #{x}",
+             "responses" => %{
+               "200" => %{
+                 "content" => %{
+                   "application/json" => %{
+                     "schema" => %{
+                       "type" => "array",
+                       "items" => %{
+                         # # TODO: Add index and get on title
+                         "ref" => "/app/schema/#{schemaid}"
+                       }
+                     }
+                   }
+                 }
+               }
+             }
+           },
+           "post" => %{
+             "summary" => "Create a new #{x}",
+             "requestBody" => %{
+               "required" => True,
+               "content" => %{
+                 "application/json" => %{
+                   "schema" => %{
+                     # # TODO: Add index and get on title
+                     "ref" => "/app/schema/#{schemaid}"
+                   }
+                 }
+               }
+             },
+             "responses" => %{
+               "200" => %{
+                 "content" => %{
+                   "application/json" => %{
+                     "schema" => %{
+                       # # TODO: Add index and get on title
+                       "ref" => "/app/schema/#{schemaid}"
+                     }
+                   }
+                 }
+               }
+             }
+           }
+         }}
+      end)
+
+    apidefsinner =
+      r
+      |> Enum.filter(fn rs ->
+        Enum.any?(allschemas, fn schema -> schema["title"] == rs end)
+      end)
+      |> Map.new(fn x ->
+        schemaid =
+          BSON.ObjectId.encode!(
+            Enum.find(allschemas, fn schema -> schema["title"] == x end)["_id"]
+          )
+
+        {"/api/#{x}/{id}",
+         %{
+           "parameters" => [
+             %{
+               "name" => "id",
+               "in" => "path",
+               "required" => True,
+               "description" => "Item id of the #{x}",
+               "schema" => %{
+                 "type" => "string",
+                 "format" => "uuid",
+                 "pattern" => "^[a-fA-F\d]{24}$"
+               }
+             }
+           ],
+           "get" => %{
+             "summary" => "Get one specific #{x} identifed by url-param id",
+             "responses" => %{
+               "200" => %{
+                 "content" => %{
+                   "application/json" => %{
+                     "schema" => %{
+                       # # TODO: Add index and get on title
+                       "ref" => "/app/schema/#{schemaid}"
+                     }
+                   }
+                 }
+               }
+             }
+           },
+           "put" => %{
+             "summary" => "Overwrite a #{x} with a new #{x}",
+             "requestBody" => %{
+               "required" => True,
+               "content" => %{
+                 "application/json" => %{
+                   "schema" => %{
+                     # # TODO: Add index and get on title
+                     "ref" => "/app/schema/#{schemaid}"
+                   }
+                 }
+               }
+             },
+             "responses" => %{
+               "200" => %{
+                 "content" => %{
+                   "application/json" => %{
+                     "schema" => %{
+                       # # TODO: Add index and get on title
+                       "ref" => "/app/schema/#{schemaid}"
+                     }
+                   }
+                 }
+               }
+             }
+           },
+           "patch" => %{
+             "summary" => "Merge existing #{x} with the one provided in the body",
+             "requestBody" => %{
+               "required" => True,
+               "content" => %{
+                 "application/json" => %{
+                   "schema" => %{
+                     # # TODO: Add index and get on title
+                     "ref" => "/app/schema/#{schemaid}"
+                   }
+                 }
+               }
+             },
+             "responses" => %{
+               "200" => %{
+                 "content" => %{
+                   "application/json" => %{
+                     "schema" => %{
+                       # # TODO: Add index and get on title
+                       "ref" => "/app/schema/#{schemaid}"
+                     }
+                   }
+                 }
+               }
+             }
+           },
+           "delete" => %{
+             "summary" => "Delete an #{x}",
+             "responses" => %{
+               "201" => %{
+                 "content" => %{
+                   "application/json" => %{
+                     "schema" => %{
+                       "type" => "string"
+                     }
+                   }
+                 }
+               }
+             }
+           }
+         }}
+      end)
+
+    otherpaths = %{
+      "/control/meta" => %{
+        "get" => %{
+          "summary" => "Get the current context and environment",
+          "responses" => %{
+            "200" => %{
+              "description" => "The current context and environment",
+              "content" => %{
+                "text/plain" => %{
+                  "schema" => %{
+                    "type" => "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/control/api" => %{
+        "get" => %{
+          "summary" => "Get the current api-spec",
+          "responses" => %{
+            "200" => %{
+              "description" => "The current context and environment",
+              "content" => %{
+                "application/json" => %{
+                  "schema" => %{
+                    # Apperantly they didn't publish the 3.0.0 not yet :(
+                    "ref" => "http://swagger.io/v2/schema.json"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/apig/graphql" => %{
+        "get" => %{
+          "summary" => "GraphQL endpoint root",
+          "responses" => %{
+            "200" => %{
+              "description" => "The current context and environment",
+              "content" => %{
+                "text/plain" => %{
+                  "schema" => %{
+                    # Ah..... skip?!
+                    "type" => "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/login" => %{
+        "get" => %{
+          "summary" => "Login Demo",
+          "responses" => %{
+            "200" => %{
+              "description" => "Login demo HTML-based page",
+              "content" => %{
+                "text/html" => %{
+                  "schema" => %{
+                    "type" => "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
     s = %{
       "openapi" => "3.0.0",
       "info" => %{
@@ -66,243 +309,7 @@ defmodule ZcmsWeb.ControlController do
       "servers" => [
         %{"url" => "#{System.get_env("APP_NAME")}.gigalixirapp.com"}
       ],
-      "paths" => %{
-        "/control" => %{
-          "/meta" => %{
-            "get" => %{
-              "summary" => "Get the current context and environment",
-              "responses" => %{
-                "200" => %{
-                  "description" => "The current context and environment",
-                  "content" => %{
-                    "text/plain" => %{
-                      "schema" => %{
-                        "type" => "string"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "/api" => %{
-            "get" => %{
-              "summary" => "Get the current api-spec",
-              "responses" => %{
-                "200" => %{
-                  "description" => "The current context and environment",
-                  "content" => %{
-                    "application/json" => %{
-                      "schema" => %{
-                        # Apperantly they didn't publish the 3.0.0 not yet :(
-                        "ref" => "http://swagger.io/v2/schema.json"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "/apig/graphql" => %{
-          "get" => %{
-            "summary" => "GraphQL endpoint root",
-            "responses" => %{
-              "200" => %{
-                "description" => "The current context and environment",
-                "content" => %{
-                  "text/plain" => %{
-                    "schema" => %{
-                      # Ah..... skip?!
-                      "type" => "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "/login" => %{
-          "get" => %{
-            "summary" => "Login Demo",
-            "responses" => %{
-              "200" => %{
-                "description" => "Login demo HTML-based page",
-                "content" => %{
-                  "text/html" => %{
-                    "schema" => %{
-                      "type" => "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "/api" =>
-          r
-          |> Enum.filter(fn rs ->
-            Enum.any?(allschemas, fn schema -> schema["title"] == rs end)
-          end)
-          |> Map.new(fn x ->
-            IO.inspect(x)
-            IO.inspect(allschemas |> Enum.to_list())
-
-            IO.inspect(
-              allschemas
-              |> Enum.find(fn schema -> schema["title"] == x end)
-            )
-
-            schemaid =
-              BSON.ObjectId.encode!(
-                Enum.find(allschemas, fn schema -> schema["title"] == x end)["_id"]
-              )
-
-            {"/#{x}",
-             %{
-               "get" => %{
-                 "summary" => "Index all #{x}",
-                 "responses" => %{
-                   "200" => %{
-                     "content" => %{
-                       "application/json" => %{
-                         "schema" => %{
-                           "type" => "array",
-                           "items" => %{
-                             # # TODO: Add index and get on title
-                             "ref" => "/app/schema/#{schemaid}"
-                           }
-                         }
-                       }
-                     }
-                   }
-                 }
-               },
-               "post" => %{
-                 "summary" => "Create a new #{x}",
-                 "requestBody" => %{
-                   "required" => True,
-                   "content" => %{
-                     "application/json" => %{
-                       "schema" => %{
-                         # # TODO: Add index and get on title
-                         "ref" => "/app/schema/#{schemaid}"
-                       }
-                     }
-                   }
-                 },
-                 "responses" => %{
-                   "200" => %{
-                     "content" => %{
-                       "application/json" => %{
-                         "schema" => %{
-                           # # TODO: Add index and get on title
-                           "ref" => "/app/schema/#{schemaid}"
-                         }
-                       }
-                     }
-                   }
-                 }
-               },
-               "/{id}" => %{
-                 "parameters" => [
-                   %{
-                     "name" => "id",
-                     "in" => "path",
-                     "required" => True,
-                     "description" => "Item id of the #{x}",
-                     "schema" => %{
-                       "type" => "string",
-                       "format" => "uuid",
-                       "pattern" => "^[a-fA-F\d]{24}$"
-                     }
-                   }
-                 ],
-                 "get" => %{
-                   "summary" => "Get one specific #{x} identifed by url-param id",
-                   "responses" => %{
-                     "200" => %{
-                       "content" => %{
-                         "application/json" => %{
-                           "schema" => %{
-                             # # TODO: Add index and get on title
-                             "ref" => "/app/schema/#{schemaid}"
-                           }
-                         }
-                       }
-                     }
-                   }
-                 },
-                 "put" => %{
-                   "summary" => "Overwrite a #{x} with a new #{x}",
-                   "requestBody" => %{
-                     "required" => True,
-                     "content" => %{
-                       "application/json" => %{
-                         "schema" => %{
-                           # # TODO: Add index and get on title
-                           "ref" => "/app/schema/#{schemaid}"
-                         }
-                       }
-                     }
-                   },
-                   "responses" => %{
-                     "200" => %{
-                       "content" => %{
-                         "application/json" => %{
-                           "schema" => %{
-                             # # TODO: Add index and get on title
-                             "ref" => "/app/schema/#{schemaid}"
-                           }
-                         }
-                       }
-                     }
-                   }
-                 },
-                 "patch" => %{
-                   "summary" => "Merge existing #{x} with the one provided in the body",
-                   "requestBody" => %{
-                     "required" => True,
-                     "content" => %{
-                       "application/json" => %{
-                         "schema" => %{
-                           # # TODO: Add index and get on title
-                           "ref" => "/app/schema/#{schemaid}"
-                         }
-                       }
-                     }
-                   },
-                   "responses" => %{
-                     "200" => %{
-                       "content" => %{
-                         "application/json" => %{
-                           "schema" => %{
-                             # # TODO: Add index and get on title
-                             "ref" => "/app/schema/#{schemaid}"
-                           }
-                         }
-                       }
-                     }
-                   }
-                 },
-                 "delete" => %{
-                   "summary" => "Delete an #{x}",
-                   "responses" => %{
-                     "201" => %{
-                       "content" => %{
-                         "application/json" => %{
-                           "schema" => %{
-                             "type" => "string"
-                           }
-                         }
-                       }
-                     }
-                   }
-                 }
-               }
-             }}
-          end)
-      }
+      "paths" => otherpaths |> Map.merge(apidefsinner) |> Map.merge(apidefs)
     }
 
     conn
