@@ -47,8 +47,6 @@ defmodule ZcmsWeb.ControlController do
         pool: DBConnection.Poolboy
       )
 
-    IO.inspect(r)
-
     # wait for mongoDB elixir to be update -> gotta have own listCollections command!
     r =
       r["cursor"]["firstBatch"]
@@ -58,7 +56,7 @@ defmodule ZcmsWeb.ControlController do
 
     allschemas = Zcms.Resource.Rest.list_rests("schema")
 
-    %{
+    r = %{
       "openapi" => "3.0.0",
       "info" => %{
         "title" => Atom.to_string(app),
