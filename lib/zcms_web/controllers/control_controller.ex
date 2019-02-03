@@ -74,6 +74,7 @@ defmodule ZcmsWeb.ControlController do
              "summary" => "Index all #{x}",
              "responses" => %{
                "200" => %{
+                 "description" => "Successfully got all #{x}s",
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
@@ -103,6 +104,7 @@ defmodule ZcmsWeb.ControlController do
              },
              "responses" => %{
                "200" => %{
+                 "description" => "Successfully created new #{x}",
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
@@ -147,6 +149,7 @@ defmodule ZcmsWeb.ControlController do
              "summary" => "Get one specific #{x} identifed by url-param id",
              "responses" => %{
                "200" => %{
+                 "description" => "Got #{x} identified by 'id'",
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
@@ -173,6 +176,7 @@ defmodule ZcmsWeb.ControlController do
              },
              "responses" => %{
                "200" => %{
+                 "description" => "Successfully overwrote #{x}",
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
@@ -199,6 +203,7 @@ defmodule ZcmsWeb.ControlController do
              },
              "responses" => %{
                "200" => %{
+                 "description" => "Successfully patched #{x}",
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
@@ -214,6 +219,7 @@ defmodule ZcmsWeb.ControlController do
              "summary" => "Delete an #{x}",
              "responses" => %{
                "201" => %{
+                 "description" => "Successfully deleted #{x}",
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
