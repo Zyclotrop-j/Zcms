@@ -303,6 +303,23 @@ defmodule ZcmsWeb.ControlController do
             }
           }
         }
+      },
+      "/swaggerui" => %{
+        "get" => %{
+          "summary" => "Api Demo",
+          "responses" => %{
+            "200" => %{
+              "description" => "Api demo HTML-based page",
+              "content" => %{
+                "text/html" => %{
+                  "schema" => %{
+                    "type" => "string"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
 
