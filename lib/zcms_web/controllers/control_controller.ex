@@ -80,8 +80,10 @@ defmodule ZcmsWeb.ControlController do
                      "schema" => %{
                        "type" => "array",
                        "items" => %{
-                         # # TODO: Add index and get on title
-                         "$ref" => "/api/schema/#{schemaid}"
+                         "$ref" =>
+                           "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                             schemaid
+                           }#data"
                        }
                      }
                    }
@@ -96,8 +98,10 @@ defmodule ZcmsWeb.ControlController do
                "content" => %{
                  "application/json" => %{
                    "schema" => %{
-                     # # TODO: Add index and get on title
-                     "$ref" => "/api/schema/#{schemaid}"
+                     "$ref" =>
+                       "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                         schemaid
+                       }#data"
                    }
                  }
                }
@@ -108,8 +112,10 @@ defmodule ZcmsWeb.ControlController do
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
-                       # # TODO: Add index and get on title
-                       "$ref" => "/api/schema/#{schemaid}"
+                       "$ref" =>
+                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                           schemaid
+                         }#data"
                      }
                    }
                  }
@@ -153,8 +159,10 @@ defmodule ZcmsWeb.ControlController do
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
-                       # # TODO: Add index and get on title
-                       "$ref" => "/api/schema/#{schemaid}"
+                       "$ref" =>
+                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                           schemaid
+                         }#data"
                      }
                    }
                  }
@@ -168,8 +176,10 @@ defmodule ZcmsWeb.ControlController do
                "content" => %{
                  "application/json" => %{
                    "schema" => %{
-                     # # TODO: Add index and get on title
-                     "$ref" => "/api/schema/#{schemaid}"
+                     "$ref" =>
+                       "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                         schemaid
+                       }#data"
                    }
                  }
                }
@@ -180,8 +190,10 @@ defmodule ZcmsWeb.ControlController do
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
-                       # # TODO: Add index and get on title
-                       "$ref" => "/api/schema/#{schemaid}"
+                       "$ref" =>
+                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                           schemaid
+                         }#data"
                      }
                    }
                  }
@@ -195,8 +207,10 @@ defmodule ZcmsWeb.ControlController do
                "content" => %{
                  "application/json" => %{
                    "schema" => %{
-                     # # TODO: Add index and get on title
-                     "$ref" => "/api/schema/#{schemaid}"
+                     "$ref" =>
+                       "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                         schemaid
+                       }#data"
                    }
                  }
                }
@@ -207,8 +221,10 @@ defmodule ZcmsWeb.ControlController do
                  "content" => %{
                    "application/json" => %{
                      "schema" => %{
-                       # # TODO: Add index and get on title
-                       "$ref" => "/api/schema/#{schemaid}"
+                       "$ref" =>
+                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                           schemaid
+                         }#data"
                      }
                    }
                  }
