@@ -93,6 +93,7 @@ defmodule ZcmsWeb.Router do
     get("/", PageController, :index)
     get("/login", PageController, :login)
     get("/swaggerui", PageController, :swaggerui)
+    get("/graphiql", PageController, :graphiql)
   end
 
   # Other scopes may use custom stacks.

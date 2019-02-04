@@ -304,6 +304,23 @@ defmodule ZcmsWeb.ControlController do
           }
         }
       },
+      "/graphiql" => %{
+        "get" => %{
+          "summary" => "GQL Api Demo",
+          "responses" => %{
+            "200" => %{
+              "description" => "GQL Api demo HTML-based page",
+              "content" => %{
+                "text/html" => %{
+                  "schema" => %{
+                    "type" => "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "/swaggerui" => %{
         "get" => %{
           "summary" => "Api Demo",

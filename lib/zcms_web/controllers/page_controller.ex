@@ -12,4 +12,8 @@ defmodule ZcmsWeb.PageController do
   def swaggerui(conn, _params) do
     render(conn, "swaggerui.html")
   end
+
+  def graphiql(conn, _params) do
+    render(conn, "graphiql.html")
+  end
 end

@@ -99,7 +99,7 @@
             if(endpointdiv)  endpointdiv.innerHTML = "<h2>Endpoints: </h2><div><pre>" + JSON.stringify(i, null, "  ") + "</pre></div>"
          });
          while(cbx.length) {
-           cbx.pop()();
+           cbx.pop()(authResult.idToken);
          }
          // Set the time that the access token will expire at
          expiresAt = JSON.stringify(
