@@ -332,7 +332,7 @@ defmodule ZcmsWeb.ControlController do
       "servers" => [
         %{"url" => "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/"}
       ],
-      "paths" => apidefs |> Map.merge(apidefsinner) |> Map.merge(otherpaths)
+      "paths" => apidefs |> Map.merge(otherpaths) |> Map.merge(apidefsinner)
     }
 
     prettify =
