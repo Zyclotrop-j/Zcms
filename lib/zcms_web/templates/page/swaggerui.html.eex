@@ -1,26 +1,25 @@
 <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui.css">
 <script src="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui-standalone-preset.js"></script>
 <script src="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui-bundle.js"></script>
-<button id="startbutton">Start Explorer</button>
 <script>
 window.onload = function() {
-  var startbutton = document.getElementById('startbutton');
-  startbutton.addEventListener('click', function(e) {
-    e.preventDefault();
-    SwaggerUIBundle({
-        url: "/control/api",
-        dom_id: '#standalone',
-        deepLinking: true,
-        presets: [
-            SwaggerUIBundle.presets.apis,
-            SwaggerUIStandalonePreset
-        ],
-        plugins: [
-            SwaggerUIBundle.plugins.DownloadUrl
-        ],
-        layout: "StandaloneLayout",
-    });
-    startbutton.style.display = 'none';
+  window.onLogin(function() {
+    window.setTimeout(() => {
+      const ui = SwaggerUIBundle({
+          url: "/control/api",
+          dom_id: '#standalone',
+          deepLinking: true,
+          presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+          ],
+          plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+          ],
+          layout: "StandaloneLayout",
+      });
+      window.ui = ui
+    }, 5000);
   });
 }
 </script>
