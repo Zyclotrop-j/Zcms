@@ -1,24 +1,25 @@
-<div style="display: 100vw; height: 80wh" id="swagger-ui" ></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.20.6/swagger-ui-bundle.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.20.6/swagger-ui-standalone-preset.js"></script>
-  <script>
-  window.onload = function() {
-    window.onLogin(function() {
-      const ui = SwaggerUIBundle({
-        url: "/control/api",
-        dom_id: '#swagger-ui',
-        deepLinking: true,
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset
-        ],
-        plugins: [
-          SwaggerUIBundle.plugins.DownloadUrl
-        ],
-        layout: "StandaloneLayout"
+<link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui.css">
+<script src="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui-standalone-preset.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist@3.12.1/swagger-ui-bundle.js"></script>
+<script>
+window.onload = function() {
+  window.onLogin(function() {
+    window.setTimeout(() => {
+      SwaggerUIBundle({
+          url: "/control/api",
+          dom_id: '#standalone',
+          deepLinking: true,
+          presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+          ],
+          plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+          ],
+          layout: "StandaloneLayout",
       });
-      window.ui = ui;
-    });
-  }
+    }, 5000)
+    window.ui = ui
+  });
+}
 </script>
-<link type="text/css" rel="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.20.6/swagger-ui.css" />
