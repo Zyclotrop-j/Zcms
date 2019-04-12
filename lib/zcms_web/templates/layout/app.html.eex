@@ -51,8 +51,8 @@
         var webAuth = new auth0.WebAuth({
           domain: 'jannes.eu.auth0.com',
           clientID: 'ERsPWL3VKrVGWmIZhQ30otK6h4hqv3jI',
-          responseType: 'token id_token',
-          scope: 'openid profile email',
+          responseType: 'token id_token code',
+          scope: 'offline_access openid profile email https://stark-profuse-basenji.gigalixirapp.com/app_metadata',
           redirectUri: window.location.href
         });
 

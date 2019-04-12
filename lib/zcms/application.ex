@@ -36,6 +36,9 @@ defmodule Zcms.Application do
       end,
       fn a, b ->
         Mongo.insert_one!(:mongo, a, b, pool: DBConnection.Poolboy)
+      end,
+      fn a ->
+        Mongo.command!(:mongo, a, pool: DBConnection.Poolboy)
       end
     )
 

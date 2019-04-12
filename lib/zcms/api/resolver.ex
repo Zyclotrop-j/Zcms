@@ -52,7 +52,7 @@ defmodule Zcms.Generic.Resolver do
   #  for {key, val} <- string_key_map, into: %{}, do: {String.to_atom(key), val}
   # end
 
-  def all(argsmap, info) do
+  def all(parent, argsmap, info) do
     type =
       case info.definition.schema_node.type do
         %{of_type: x} -> x
@@ -68,7 +68,7 @@ defmodule Zcms.Generic.Resolver do
     end)
   end
 
-  def find(argsmap, info) do
+  def find(parent, argsmap, info) do
     type =
       case info.definition.schema_node.type do
         %{of_type: x} -> x
@@ -92,7 +92,7 @@ defmodule Zcms.Generic.Resolver do
     )
   end
 
-  def create(argsmap, info) do
+  def create(parent, argsmap, info) do
     type =
       case info.definition.schema_node.type do
         %{of_type: x} -> x
@@ -107,12 +107,12 @@ defmodule Zcms.Generic.Resolver do
       argsmap,
       info,
       fn id ->
-        find(%{:_id => BSON.ObjectId.encode!(id)}, info)
+        find(parent, %{:_id => BSON.ObjectId.encode!(id)}, info)
       end
     )
   end
 
-  def update(argsmap, info) do
+  def update(parent, argsmap, info) do
     type =
       case info.definition.schema_node.type do
         %{of_type: x} -> x
@@ -124,11 +124,11 @@ defmodule Zcms.Generic.Resolver do
     {id, map} = Map.pop(argsmap, :_id)
 
     Zcms.Resource.Rest.update_rest(info.context.conn, type |> String.downcase(), id, map, fn _ ->
-      find(%{:_id => id}, info)
+      find(parent, %{:_id => id}, info)
     end)
   end
 
-  def delete(argsmap, info) do
+  def delete(parent, argsmap, info) do
     type =
       case info.definition.schema_node.type do
         %{of_type: x} -> x

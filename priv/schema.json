@@ -3,6 +3,28 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "description": "Core schema meta-schema",
     "title": "schema",
+    "_permissions": {
+      "owner" : "ROOT",
+      "group:admin": {
+        "show" : false,
+        "create" : false,
+        "replace" : false,
+        "update" : false,
+        "delete" : false,
+        "grant": true
+      },
+      "state:loggedin" : {
+        "show" : true,
+        "create" : true,
+        "replace" : false,
+        "update" : false,
+        "delete" : false
+      },
+      "state:public" : {
+        "show" : true
+      }
+    },
+    "_draft": false,
     "definitions": {
         "schemaArray": {
             "type": "array",

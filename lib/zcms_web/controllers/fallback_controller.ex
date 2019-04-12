@@ -10,6 +10,10 @@ defmodule ZcmsWeb.MissingHeader do
   defexception detail: nil, message: "Mandatory header missing.", plug_status: 400
 end
 
+defmodule ZcmsWeb.InvalidRequest do
+  defexception detail: nil, message: "Request invalid", plug_status: 400
+end
+
 defmodule ZcmsWeb.BodyTooBig do
   defexception detail: nil,
                message: "Payload too big. Request payload must be smaller 1MB",

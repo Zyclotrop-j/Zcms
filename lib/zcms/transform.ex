@@ -3,6 +3,31 @@ defmodule MalformedSchema do
 end
 
 defmodule Zcms.Application.Transformer do
+  defp baseschema(),
+    do: """
+      defmodule ZcmsWeb.Schema do
+        use Absinthe.Schema
+        import Absinthe.Resolution.Helpers
+
+        import_types(ZcmsWeb.Schema.{Types, Types.Custom.JSON})
+
+        def context(ctx) do
+          loader =
+            Dataloader.new()
+            |> Dataloader.add_source(:zmongo, Zcms.Loaders.Mongo.data())
+
+          Map.put(ctx, :loader, loader)
+        end
+
+        def plugins do
+          [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
+        end
+
+        query do
+        end
+      end
+    """
+
   defp first(name),
     do: """
     defmodule ZcmsWeb.Schema.Types.#{String.capitalize(name)} do
@@ -45,20 +70,23 @@ defmodule Zcms.Application.Transformer do
     """
 
   def compile(name, ct) do
-    # {:ok, file} = File.open(name <> ".debug", [:write])
-    # IO.binwrite(file, ct)
-    # File.close(file)
+    {:ok, file} = File.open(name <> ".debug", [:write])
+    IO.binwrite(file, ct)
+    File.close(file)
     # Compile to memory!!!
+    IO.puts("COMPILING #{name}")
+    IO.inspect(ct)
     [{mod, _}] = Code.compile_string(ct)
+    IO.puts("END - COMPILED #{name}")
     {:ok, mod}
   end
 
   # Insert initial schema-schema (aka meta-schema)
   @external_resource "priv/schema.json"
-  @schema_contents File.read! "priv/schema.json"
+  @schema_contents File.read!("priv/schema.json")
   def schema_contents, do: @schema_contents
 
-  def initMetaDB(conn1, conn2) do
+  def initMetaDB(conn1, conn2, conn3) do
     filename = "schema"
 
     ijson = Poison.decode!(schema_contents)
@@ -74,6 +102,11 @@ defmodule Zcms.Application.Transformer do
       {:ok, 1} -> :ok
       other -> conn2.("schema", json)
     end
+
+    conn3.(%{
+      "createIndexes" => "schema",
+      "indexes" => [%{"key" => %{"title" => 1}, "unique" => true, "name" => "schemaByTitle"}]
+    })
   end
 
   def transformSchema(conn) do
@@ -88,8 +121,8 @@ defmodule Zcms.Application.Transformer do
 
     testschema = hd(schemasfromdb)
 
-    {queries, mutations, importtypes} =
-      Enum.reduce(schemasfromdb, {"", "", ""}, fn json, {qq, mm, imt} ->
+    {queries, mutations, importtypes, mods} =
+      Enum.reduce(schemasfromdb, {"", "", "", []}, fn json, {qq, mm, imt, modslist} ->
         filename = json["title"]
 
         {queries, mutations, queryinputtypes} =
@@ -110,7 +143,7 @@ defmodule Zcms.Application.Transformer do
 
         ttypes = "Types.#{String.capitalize(filename)}"
 
-        {qq <> queries, mm <> mutations, imt <> ", " <> ttypes}
+        {qq <> queries, mm <> mutations, imt <> ", " <> ttypes, [file | modslist]}
       end)
 
     r = """
@@ -122,7 +155,24 @@ defmodule Zcms.Application.Transformer do
     end
     """
 
+    # somehow this errors with "Types must exist if referenced."
+    #    ** (Absinthe.Schema.Error) Invalid schema:
+    # nofile:127: Update_resume :resume is not defined in your schema
+    # stacktrace: (zcms) lib/zcms/transform.ex:159: Zcms.Application.Transformer.transformSchema/1.
+    a = :code.delete(Elixir.Absinthe.Schema)
+    c = :code.delete(Elixir.ZcmsWeb.Schema)
+    b = :code.purge(Elixir.Absinthe.Schema)
+    d = :code.purge(Elixir.ZcmsWeb.Schema)
+    a = :code.delete(Elixir.Absinthe.Schema)
+    c = :code.delete(Elixir.ZcmsWeb.Schema)
+
+    IO.inspect(a: a, b: b, c: c, d: d)
+    # atomic_load
+    # Code.compile_string
     {:ok, file} = compile(schemapath <> schemafile, schemafirst(importtypes) <> r <> schemalast)
+    allnewmodules = [file | mods]
+    IO.puts("allnewmodules")
+    IO.inspect(allnewmodules)
 
     :ok
   end
@@ -149,30 +199,30 @@ defmodule Zcms.Application.Transformer do
     querys = """
       field :#{name}, :#{name} do
         arg(:_id, non_null(:id))
-        resolve(&Zcms.Generic.Resolver.find/2)
+        resolve(&Zcms.Generic.Resolver.find/3)
       end
       field :#{name}s, list_of(:#{name}) do
         arg(:_id, :id)
         #{args |> Enum.join("    ")}
-        resolve(&Zcms.Generic.Resolver.all/2)
+        resolve(&Zcms.Generic.Resolver.all/3)
       end
     """
 
     mutations = """
         field :create_#{name}, type: :#{name} do
           #{args |> Enum.join("    ")}
-          resolve(&Zcms.Generic.Resolver.create/2)
+          resolve(&Zcms.Generic.Resolver.create/3)
         end
 
         field :update_#{name}, type: :#{name} do
           arg(:_id, non_null(:id))
           #{args |> Enum.join("    ")}
-          resolve(&Zcms.Generic.Resolver.update/2)
+          resolve(&Zcms.Generic.Resolver.update/3)
         end
 
         field :delete_#{name}, type: :#{name} do
           arg(:_id, non_null(:id))
-          resolve(&Zcms.Generic.Resolver.delete/2)
+          resolve(&Zcms.Generic.Resolver.delete/3)
         end
     """
 

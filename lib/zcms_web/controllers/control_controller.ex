@@ -68,9 +68,12 @@ defmodule ZcmsWeb.ControlController do
             Enum.find(allschemas, fn schema -> schema["title"] == x end)["_id"]
           )
 
-        {"/api/#{x}",
+        {"/api/v1/#{x}",
          %{
            "get" => %{
+             "security" => [
+               %{"bearerAuth" => []}
+             ],
              "summary" => "Index all #{x}",
              "responses" => %{
                "200" => %{
@@ -83,7 +86,7 @@ defmodule ZcmsWeb.ControlController do
                          "$ref" =>
                            "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                              schemaid
-                           }#data"
+                           }#/data"
                        }
                      }
                    }
@@ -92,6 +95,9 @@ defmodule ZcmsWeb.ControlController do
              }
            },
            "post" => %{
+             "security" => [
+               %{"bearerAuth" => []}
+             ],
              "summary" => "Create a new #{x}",
              "requestBody" => %{
                "required" => true,
@@ -101,7 +107,7 @@ defmodule ZcmsWeb.ControlController do
                      "$ref" =>
                        "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                          schemaid
-                       }#data"
+                       }#/data"
                    }
                  }
                }
@@ -115,7 +121,7 @@ defmodule ZcmsWeb.ControlController do
                        "$ref" =>
                          "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                            schemaid
-                         }#data"
+                         }#/data"
                      }
                    }
                  }
@@ -136,7 +142,7 @@ defmodule ZcmsWeb.ControlController do
             Enum.find(allschemas, fn schema -> schema["title"] == x end)["_id"]
           )
 
-        {"/api/#{x}/{id}",
+        {"/api/v1/#{x}/{id}",
          %{
            "parameters" => [
              %{
@@ -152,6 +158,9 @@ defmodule ZcmsWeb.ControlController do
              }
            ],
            "get" => %{
+             "security" => [
+               %{"bearerAuth" => []}
+             ],
              "summary" => "Get one specific #{x} identifed by url-param id",
              "responses" => %{
                "200" => %{
@@ -162,7 +171,7 @@ defmodule ZcmsWeb.ControlController do
                        "$ref" =>
                          "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                            schemaid
-                         }#data"
+                         }#/data"
                      }
                    }
                  }
@@ -170,6 +179,9 @@ defmodule ZcmsWeb.ControlController do
              }
            },
            "put" => %{
+             "security" => [
+               %{"bearerAuth" => []}
+             ],
              "summary" => "Overwrite a #{x} with a new #{x}",
              "requestBody" => %{
                "required" => true,
@@ -179,7 +191,7 @@ defmodule ZcmsWeb.ControlController do
                      "$ref" =>
                        "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                          schemaid
-                       }#data"
+                       }#/data"
                    }
                  }
                }
@@ -193,7 +205,7 @@ defmodule ZcmsWeb.ControlController do
                        "$ref" =>
                          "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                            schemaid
-                         }#data"
+                         }#/data"
                      }
                    }
                  }
@@ -201,6 +213,9 @@ defmodule ZcmsWeb.ControlController do
              }
            },
            "patch" => %{
+             "security" => [
+               %{"bearerAuth" => []}
+             ],
              "summary" => "Merge existing #{x} with the one provided in the body",
              "requestBody" => %{
                "required" => true,
@@ -210,7 +225,7 @@ defmodule ZcmsWeb.ControlController do
                      "$ref" =>
                        "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                          schemaid
-                       }#data"
+                       }#/data"
                    }
                  }
                }
@@ -224,7 +239,7 @@ defmodule ZcmsWeb.ControlController do
                        "$ref" =>
                          "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
                            schemaid
-                         }#data"
+                         }#/data"
                      }
                    }
                  }
@@ -232,6 +247,9 @@ defmodule ZcmsWeb.ControlController do
              }
            },
            "delete" => %{
+             "security" => [
+               %{"bearerAuth" => []}
+             ],
              "summary" => "Delete an #{x}",
              "responses" => %{
                "201" => %{
@@ -287,6 +305,9 @@ defmodule ZcmsWeb.ControlController do
       },
       "/apig/graphql" => %{
         "get" => %{
+          "security" => [
+            %{"bearerAuth" => []}
+          ],
           "summary" => "GraphQL endpoint root",
           "responses" => %{
             "200" => %{
@@ -322,6 +343,9 @@ defmodule ZcmsWeb.ControlController do
       },
       "/graphiql" => %{
         "get" => %{
+          "security" => [
+            %{"bearerAuth" => []}
+          ],
           "summary" => "GQL Api Demo",
           "responses" => %{
             "200" => %{
@@ -365,6 +389,15 @@ defmodule ZcmsWeb.ControlController do
       "servers" => [
         %{"url" => "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/"}
       ],
+      "components" => %{
+        "securitySchemes" => %{
+          "bearerAuth" => %{
+            "type" => "http",
+            "scheme" => "bearer",
+            "bearerFormat" => "JWT"
+          }
+        }
+      },
       "paths" => apidefs |> Map.merge(otherpaths) |> Map.merge(apidefsinner)
     }
 

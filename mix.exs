@@ -43,7 +43,7 @@ defmodule Zcms.Mixfile do
       {:cowboy, "~> 1.0"},
       {:plug_cowboy, "~> 1.0"},
       {:bcrypt_elixir, "~> 1.0"},
-      {:faker, "~> 0.8"},
+      {:faker, "~> 0.12"},
       {:joken, "~> 1.1"},
       {:jason, "~> 1.1"},
       {:corsica, "~> 1.0"},
@@ -56,7 +56,9 @@ defmodule Zcms.Mixfile do
       {:dataloader, "~> 1.0.0"},
       {:odgn_json_pointer, "~> 2.4"},
       {:ex_json_schema, "~> 0.5.4"},
-      {:distillery, "~> 1.5.5"}
+      {:distillery, "~> 1.5.5"},
+      {:canada, "~> 1.0.1"},
+      {:deep_merge, "~> 0.1.1"}
     ]
   end
 

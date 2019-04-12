@@ -60,6 +60,8 @@ config :zcms, Zcms.Resource.Rest,
   pool_size:
     String.to_integer(System.get_env("MONGO_POOL_SIZE") || System.get_env("POOL_SIZE") || "10")
 
+config :zcms, :environment, :prod
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

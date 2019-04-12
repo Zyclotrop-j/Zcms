@@ -1,3 +1,18 @@
+defmodule ZcmsWeb.AuthMockplug do
+  import Plug.Conn
+
+  def init(options) do
+    options
+  end
+
+  def call(conn, _opts) do
+    conn
+    |> assign(:joken_claims, %{
+      "sub" => [conn |> get_req_header("x-mock-sub") | "MOCK-USER"] |> hd()
+    })
+  end
+end
+
 defmodule ZcmsWeb.Router do
   import Joken, except: [verify: 1]
   use ZcmsWeb, :router
@@ -17,10 +32,14 @@ defmodule ZcmsWeb.Router do
   end
 
   pipeline :auth do
-    plug(ZcmsWeb.JokenPlug,
-      verify: &ZcmsWeb.Router.verify_function/1,
-      on_error: &ZcmsWeb.Router.autherror_function/2
-    )
+    if Application.get_env(:myapp, :environment) == :prod do
+      plug(ZcmsWeb.JokenPlug,
+        verify: &ZcmsWeb.Router.verify_function/1,
+        on_error: &ZcmsWeb.Router.autherror_function/2
+      )
+    else
+      plug(ZcmsWeb.AuthMockplug)
+    end
   end
 
   pipeline :api do
@@ -50,6 +69,12 @@ defmodule ZcmsWeb.Router do
       |> hd
       |> Base.decode64!()
       |> Poison.decode()
+
+    # # TODO:
+    # get https://<myAuth0>.eu.auth0.com/.well-known/openid-configuration
+    # -> jwks_uri
+    # -> AUTH0_AUD
+    # issuer -> AUTH0_ISS
 
     # ttl = 10 hours
     {:ok, keylist} =
@@ -97,7 +122,7 @@ defmodule ZcmsWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", ZcmsWeb do
+  scope "/api/v1", ZcmsWeb do
     # , :auth
     pipe_through([:api, :auth])
     get("/:resource", RestController, :index)
@@ -115,7 +140,8 @@ defmodule ZcmsWeb.Router do
   end
 
   scope "/control", ZcmsWeb do
-    pipe_through([:jsonhtml, :auth])
+    # , :auth
+    pipe_through([:jsonhtml])
     get("/api", ControlController, :apiendpoints)
     get("/meta", ControlController, :meta)
     get("/recompile", ControlController, :index)

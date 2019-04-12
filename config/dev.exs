@@ -62,6 +62,8 @@ config :zcms, Zcms.Resource.Rest,
   pool: DBConnection.Poolboy,
   pool_size: 2
 
+config :zcms, :environment, :dev
+
 # config :zcms, ZcmsWeb.Router,
 #   domain: System.get_env("AUTH0_DOMAIN"),
 #   client_id: System.get_env("AUTH0_CLIENT_ID"),

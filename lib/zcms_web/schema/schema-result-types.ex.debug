@@ -1,0 +1,107 @@
+defmodule ZcmsWeb.Schema.Types.Schema do
+  use Absinthe.Schema.Notation
+  use Absinthe.Ecto, repo: Zcms.Repo
+
+  import Absinthe.Resolution.Helpers
+  import Zcms.Loaders.Mongo
+object :schema do
+  field(:_id, :id)
+  field(:"unique_items", :boolean)
+  field(:"maximum", :float)
+  field(:"title", :string)
+  field(:"multiple_of", :float)
+  
+  field(:"_dlr_schema", :string)
+  field(:"format", :string)
+  field(:"exclusive_minimum", :boolean)
+  field(:"id", :string)
+  field(:"minimum", :float)
+  field(:"definitions", :json)
+  
+  
+  field(:"pattern_properties", :json)
+  
+  
+  field(:"dependencies", :json)
+  
+  field(:"properties", :json)
+  
+  
+  
+  
+  
+  
+  field(:"description", :string)
+  
+  
+  field(:"pattern", :string)
+  
+  field(:"exclusive_maximum", :boolean)
+  
+  
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    end

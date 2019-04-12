@@ -18,22 +18,25 @@ defmodule ZcmsWeb.RestController do
     render(conn, "index.json", rests: rests)
   end
 
-  defp schemaloader(schema) do
-    Rest.get_rest(
-      "schema",
-      %{"title" => schema},
-      fn rest ->
-        {:ok,
-         rest |> Map.update!("_id", &BSON.ObjectId.encode!/1) |> ExJsonSchema.Schema.resolve()}
-      end,
-      fn _, _, _ ->
-        {:error, :not_found}
-      end
-    )
+  defp schemaloader(conn) do
+    fn schema ->
+      Rest.get_rest(
+        conn,
+        "schema",
+        %{"title" => schema},
+        fn rest ->
+          {:ok,
+           rest |> Map.update!("_id", &BSON.ObjectId.encode!/1) |> ExJsonSchema.Schema.resolve()}
+        end,
+        fn _, _, _ ->
+          {:error, :not_found}
+        end
+      )
+    end
   end
 
-  def loadAndConvertJsonSchema(schema) do
-    {:ok, result} = ZcmsWeb.SchemaCache.get(schema, &schemaloader/1, ttl: 36000)
+  def loadAndConvertJsonSchema(schema, conn) do
+    {:ok, result} = ZcmsWeb.SchemaCache.get(schema, schemaloader(conn), ttl: 36000)
   end
 
   defp validate(schema, params) do
@@ -49,15 +52,24 @@ defmodule ZcmsWeb.RestController do
     end
   end
 
+  defp randomPizza() do
+    "#{Faker.Pizza.size()}- #{Faker.Pizza.sauce()}-#{Faker.Pizza.meat()}-#{
+      Faker.Pizza.toppings(3) |> Enum.join("-")
+    }-#{Faker.Pizza.vegetable()}-#{Faker.Pizza.cheese()}-#{Faker.Pizza.combo()}_flavored-#{
+      Faker.Pizza.style()
+    }_style"
+    |> String.replace(" ", "_")
+  end
+
   def create(conn, rest_params, ttype) do
-    {:ok, schema} = loadAndConvertJsonSchema(ttype)
+    {:ok, schema} = loadAndConvertJsonSchema(ttype, conn)
     :ok = validate(schema, rest_params)
 
     with {:ok, %{} = rest} <-
            Rest.create_rest(
              conn,
              ttype,
-             rest_params |> Map.update!("title", &String.downcase/1),
+             rest_params |> Map.update("title", randomPizza(), &String.downcase/1),
              fn rest -> {:ok, rest} end
            ) do
       conn
@@ -70,12 +82,32 @@ defmodule ZcmsWeb.RestController do
     end
   end
 
+  defp getTypeQueryFromRegEx(regex, ttype, id) do
+    [_, type, by] = Regex.run(regex, ttype)
+    [type, %{by => id}]
+  end
+
   def show(conn, %{"id" => id}, ttype) do
+    regex = ~r/(.+)by(.+)/
+    regex2 = ~r/(.+)_by_(.+)/
+
+    [type, query] =
+      cond do
+        Regex.match?(regex, ttype) ->
+          getTypeQueryFromRegEx(regex, ttype, id)
+
+        Regex.match?(regex2, ttype) ->
+          getTypeQueryFromRegEx(regex2, ttype, id)
+
+        true ->
+          [ttype, %{"_id" => BSON.ObjectId.decode!(id)}]
+      end
+
     {:ok, %{} = rest} =
       Rest.get_rest(
         conn,
-        ttype,
-        %{"_id" => BSON.ObjectId.decode!(id)},
+        type,
+        query,
         fn rest -> {:ok, rest} end,
         fn _, _, _ ->
           {:error, :not_found}
@@ -91,7 +123,7 @@ defmodule ZcmsWeb.RestController do
              conn,
              ttype,
              id,
-             rest_params |> Map.delete("id") |> Map.update!("title", &String.downcase/1),
+             rest_params |> Map.delete("id") |> Map.delete("title"),
              fn _ ->
                {:ok, Rest.get_rest(conn, ttype, %{"_id" => BSON.ObjectId.decode!(id)})}
              end
@@ -106,7 +138,7 @@ defmodule ZcmsWeb.RestController do
              conn,
              ttype,
              id,
-             rest_params |> Map.delete("id") |> Map.update!("title", &String.downcase/1),
+             rest_params |> Map.delete("id") |> Map.delete("title"),
              fn _ ->
                {:ok, Rest.get_rest(conn, ttype, %{"_id" => BSON.ObjectId.decode!(id)})}
              end

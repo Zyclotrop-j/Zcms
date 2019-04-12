@@ -1,0 +1,96 @@
+  defmodule ZcmsWeb.Schema do
+  use Absinthe.Schema
+  import Absinthe.Resolution.Helpers
+
+  import_types(ZcmsWeb.Schema.{Types, Types.Custom.JSON, Types.Schema})
+
+  def context(ctx) do
+    loader =
+      Dataloader.new()
+      |> Dataloader.add_source(:zmongo, Zcms.Loaders.Mongo.data())
+
+    Map.put(ctx, :loader, loader)
+  end
+
+  def plugins do
+    [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
+  end
+query do
+    field :schema, :schema do
+    arg(:_id, non_null(:id))
+    resolve(&Zcms.Generic.Resolver.find/3)
+  end
+  field :schemas, list_of(:schema) do
+    arg(:_id, :id)
+    arg(:"unique_items", :boolean)
+    arg(:"maximum", :float)
+    arg(:"title", :string)
+    arg(:"multiple_of", :float)
+        arg(:"_dlr_schema", :string)
+    arg(:"format", :string)
+    arg(:"exclusive_minimum", :boolean)
+    arg(:"id", :string)
+    arg(:"minimum", :float)
+    arg(:"definitions", :json)
+            arg(:"pattern_properties", :json)
+            arg(:"dependencies", :json)
+        arg(:"properties", :json)
+                            arg(:"description", :string)
+            arg(:"pattern", :string)
+        arg(:"exclusive_maximum", :boolean)
+        
+    resolve(&Zcms.Generic.Resolver.all/3)
+  end
+
+  mutation do
+        field :create_schema, type: :schema do
+      arg(:"unique_items", :boolean)
+    arg(:"maximum", :float)
+    arg(:"title", :string)
+    arg(:"multiple_of", :float)
+        arg(:"_dlr_schema", :string)
+    arg(:"format", :string)
+    arg(:"exclusive_minimum", :boolean)
+    arg(:"id", :string)
+    arg(:"minimum", :float)
+    arg(:"definitions", :json)
+            arg(:"pattern_properties", :json)
+            arg(:"dependencies", :json)
+        arg(:"properties", :json)
+                            arg(:"description", :string)
+            arg(:"pattern", :string)
+        arg(:"exclusive_maximum", :boolean)
+        
+      resolve(&Zcms.Generic.Resolver.create/3)
+    end
+
+    field :update_schema, type: :schema do
+      arg(:_id, non_null(:id))
+      arg(:"unique_items", :boolean)
+    arg(:"maximum", :float)
+    arg(:"title", :string)
+    arg(:"multiple_of", :float)
+        arg(:"_dlr_schema", :string)
+    arg(:"format", :string)
+    arg(:"exclusive_minimum", :boolean)
+    arg(:"id", :string)
+    arg(:"minimum", :float)
+    arg(:"definitions", :json)
+            arg(:"pattern_properties", :json)
+            arg(:"dependencies", :json)
+        arg(:"properties", :json)
+                            arg(:"description", :string)
+            arg(:"pattern", :string)
+        arg(:"exclusive_maximum", :boolean)
+        
+      resolve(&Zcms.Generic.Resolver.update/3)
+    end
+
+    field :delete_schema, type: :schema do
+      arg(:_id, non_null(:id))
+      resolve(&Zcms.Generic.Resolver.delete/3)
+    end
+
+  end
+end
+  end
