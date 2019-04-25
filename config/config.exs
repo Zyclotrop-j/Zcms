@@ -31,6 +31,21 @@ config :ex_json_schema,
        {Zcms.Application.SchemaResolver, :resolver}
 
 # alternatively HTTPoison.get!(url).body |> Poison.decode!
+config :arc,
+  # or Arc.Storage.Local
+  storage: Arc.Storage.S3,
+  # if using Amazon S3
+  bucket: System.get_env("AWS_S3_BUCKET"),
+  storage_dir: "default",
+  virtual_host: true
+
+config :ex_aws,
+  access_key_id: System.get_env("AWS_ACCESS_KEY_S3"),
+  secret_access_key: System.get_env("AWS_SECRET_ACCESS_KEY_S3"),
+  s3: [
+    scheme: "https://",
+    region: "eu-central-1"
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

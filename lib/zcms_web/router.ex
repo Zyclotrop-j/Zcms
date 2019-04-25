@@ -8,7 +8,7 @@ defmodule ZcmsWeb.AuthMockplug do
   def call(conn, _opts) do
     conn
     |> assign(:joken_claims, %{
-      "sub" => [conn |> get_req_header("x-mock-sub") | "MOCK-USER"] |> hd()
+      "sub" => conn |> get_req_header("x-mock-sub") |> hd()
     })
   end
 end
@@ -25,6 +25,10 @@ defmodule ZcmsWeb.Router do
     plug(:fetch_flash)
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
+  end
+
+  pipeline :assets do
+    plug(:accepts, [:multipart])
   end
 
   pipeline :graphql do
@@ -119,6 +123,15 @@ defmodule ZcmsWeb.Router do
     get("/login", PageController, :login)
     get("/swaggerui", PageController, :swaggerui)
     get("/graphiql", PageController, :graphiql)
+  end
+
+  scope "/assets", ZcmsWeb do
+    pipe_through([:assets, :auth])
+
+    get("/upload", UploadController, :index)
+    get("/upload/:id", UploadController, :show)
+    post("/upload", UploadController, :create)
+    delete("/upload/:id", UploadController, :delete)
   end
 
   # Other scopes may use custom stacks.

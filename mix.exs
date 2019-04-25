@@ -58,7 +58,16 @@ defmodule Zcms.Mixfile do
       {:ex_json_schema, "~> 0.5.4"},
       {:distillery, "~> 1.5.5"},
       {:canada, "~> 1.0.1"},
-      {:deep_merge, "~> 0.1.1"}
+      {:deep_merge, "~> 0.1.1"},
+
+      {:arc, "~> 0.11.0"},
+      # If using Amazon S3:
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:hackney, "~> 1.6"},
+      {:poison, "~> 3.1"},
+      {:sweet_xml, "~> 0.6"},
+      {:uuid, "~> 1.1" }
     ]
   end
 
