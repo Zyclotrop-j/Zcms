@@ -4,7 +4,7 @@ defmodule Zcms.Mixfile do
   def project do
     [
       app: :zcms,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -59,7 +59,6 @@ defmodule Zcms.Mixfile do
       {:distillery, "~> 1.5.5"},
       {:canada, "~> 1.0.1"},
       {:deep_merge, "~> 0.1.1"},
-
       {:arc, "~> 0.11.0"},
       # If using Amazon S3:
       {:ex_aws, "~> 2.0"},
@@ -67,7 +66,7 @@ defmodule Zcms.Mixfile do
       {:hackney, "~> 1.6"},
       {:poison, "~> 3.1"},
       {:sweet_xml, "~> 0.6"},
-      {:uuid, "~> 1.1" }
+      {:uuid, "~> 1.1"}
     ]
   end
 
