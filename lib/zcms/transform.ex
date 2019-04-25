@@ -76,9 +76,9 @@ defmodule Zcms.Application.Transformer do
     # Compile to memory!!!
     IO.puts("COMPILING #{name}")
     IO.inspect(ct)
-    # [{mod, _}] = Code.compile_string(ct)
+    [{mod, _}] = Code.compile_string(ct)
     IO.puts("END - COMPILED #{name}")
-    {:ok, "mod"}
+    {:ok, mod}
   end
 
   # Insert initial schema-schema (aka meta-schema)
