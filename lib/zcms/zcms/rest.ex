@@ -287,6 +287,9 @@ defmodule Zcms.Resource.Rest do
       ) do
     permquery = buildpermissionquery(read_only_conn, "create")
 
+    IO.puts("create_rest")
+    IO.inspect(argsmap)
+
     case get_rest(
            read_only_conn,
            "schema",

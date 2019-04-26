@@ -31,6 +31,7 @@ body {
 <div id="form"></div>
 <button id="create">Create new</button>
 <div id="status"></div>
+<textarea id="texteditor"></textarea>
 <pre id="result"></pre>
 
 <script type="text/javascript">
@@ -51,9 +52,12 @@ const afterLogin = new Promise(resolve => {
 });
 
 let save = () => null;
+let textchange = () => null;
 
 const create = document.getElementById('create');
 create.addEventListener("click", () => save());
+const texteditor = document.getElementById("texteditor");
+texteditor.addEventListener("click", () => textchange());
 
 afterLogin.then(() => {
   console.log("Logged in");
@@ -63,6 +67,7 @@ afterLogin.then(() => {
     const select = document.getElementById("select");
     const element = document.getElementById('form');
     const result = document.getElementById('result');
+
     const status = document.getElementById("status");
 
 
@@ -78,7 +83,7 @@ afterLogin.then(() => {
 
       const editor = new JSONEditor(element, options);
       editor.disable();
-      const isDone = fetch(`/api/v1/${data[nr].title}`).then(d => {
+      const isDone = fetch(`/api/v1/${data[nr].title}`).then(i => i.json()).then(d => {
         editor.enable();
         if(d.data.length > 0) {
           editor.setValue(d.data[0]);
@@ -86,10 +91,22 @@ afterLogin.then(() => {
       });
       const f = function() {
         const errors = editor.validate();
+        if(errors.length) {
+          create.disabled = true;
+        } else {
+          create.disabled = false;
+        }
+        texteditor.value = editor.getValue();
         result.innerHTML = errors.length ? JSON.stringify(errors, null, "  ") : JSON.stringify(editor.getValue(), null, "  ");
       };
-
+      textchange = (evt) => {
+        const json = JSON.parse(evt.target.value);
+        if(json && JSON.stringify(editor.getValue()) !== JSON.stringify(json)) {
+          editor.setValue(json);
+        }
+      };
       save = () => {
+        create.disabled = true;
         status.innerHTML = "....Saving....";
         editor.disable();
         fetch(`/api/v1/${data[nr].title}`, {
@@ -100,6 +117,7 @@ afterLogin.then(() => {
           window.setTimeout(() => {
             status.innerHTML = "";
           }, 5000);
+          create.disabled = false;
           status.innerHTML = "Success!!";
           editor.enable();
           editor.setValue({});
@@ -108,6 +126,7 @@ afterLogin.then(() => {
           window.setTimeout(() => {
             status.innerHTML = "";
           }, 5000);
+          create.disabled = false;
           status.innerHTML = "Failiure!!";
           editor.enable();
           editor.setValue({});

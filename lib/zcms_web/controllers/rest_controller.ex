@@ -65,6 +65,9 @@ defmodule ZcmsWeb.RestController do
     {:ok, schema} = loadAndConvertJsonSchema(ttype, conn)
     :ok = validate(schema, rest_params)
 
+    IO.puts("create")
+    IO.inspect(rest_params)
+
     with {:ok, %{} = rest} <-
            Rest.create_rest(
              conn,
