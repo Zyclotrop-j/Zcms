@@ -1,0 +1,52 @@
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+<!-- Bootstrap3 -->
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" >
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" ></script>
+
+<!-- Handlebars -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"></script>
+
+<!-- Flatpickr -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.5.1/flatpickr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.5.1/flatpickr.min.css" />
+
+<!-- JSON-Editor -->
+<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+
+<style type="text/css">
+body {
+  margin: 1em;
+}
+#form {
+  width: 100vw;
+}
+</style>
+<div id="form"></div>
+
+<script type="text/javascript">
+
+// Handlebars helper for displaying timestamps in human frindly format
+Handlebars.registerHelper("TimeStampToDateTime", function(ts) {
+  return ts ? new Date(ts * 1000) : 'empty';
+});
+
+fetch("https://zcmsapi.herokuapp.com/api/v1/schema").then(i => i.json()).then(i => {
+  console.log(i);
+  var options = {
+    "theme": "bootstrap3",
+    "template": "handlebars",
+    "iconlib": "bootstrap3",
+    "schema": {}
+  }
+
+  var element = document.getElementById('form');
+  var editor = new JSONEditor(element, options);
+});
+
+</script>

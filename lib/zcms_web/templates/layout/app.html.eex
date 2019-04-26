@@ -117,6 +117,7 @@
              alert(
                  'Could not get a new token '  + err.error + ':' + err.error_description + '.'
              );
+             console.error(err);
              logout();
            }
            displayButtons();

@@ -21,10 +21,10 @@ defmodule ZcmsWeb.CORS do
     max_age: 600,
     expose_headers:
       ~w(x-expires authorization location x-user) ++
-        if(Application.get_env(:myapp, :environment) == :prod, do: ["x-mock-sub"], else: []),
+        if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_headers:
       ~w(x-expires authorization location x-user) ++
-        if(Application.get_env(:myapp, :environment) == :prod, do: ["x-mock-sub"], else: []),
+        if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_methods: ["PUT", "PATCH", "DELETE", "POST", "GET", "OPTIONS"]
   )
 
@@ -38,10 +38,10 @@ defmodule ZcmsWeb.CORS do
     max_age: 600,
     expose_headers:
       ~w(x-expires authorization location x-user) ++
-        if(Application.get_env(:myapp, :environment) == :prod, do: ["x-mock-sub"], else: []),
+        if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_headers:
       ~w(x-expires authorization location x-user) ++
-        if(Application.get_env(:myapp, :environment) == :prod, do: ["x-mock-sub"], else: []),
+        if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_methods: ["POST", "GET", "OPTIONS"]
   )
 

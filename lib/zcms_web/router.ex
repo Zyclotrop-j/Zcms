@@ -36,7 +36,7 @@ defmodule ZcmsWeb.Router do
   end
 
   pipeline :auth do
-    if Application.get_env(:myapp, :environment) == :prod do
+    if Application.get_env(:zcms, :environment) == :prod do
       plug(ZcmsWeb.JokenPlug,
         verify: &ZcmsWeb.Router.verify_function/1,
         on_error: &ZcmsWeb.Router.autherror_function/2
