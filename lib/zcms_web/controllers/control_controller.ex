@@ -262,6 +262,104 @@ defmodule ZcmsWeb.ControlController do
       end)
 
     otherpaths = %{
+      "/assets/upload/{key}" => %{
+        "security" => [
+          %{"bearerAuth" => []}
+        ],
+        "parameters" => [
+          %{
+            "name" => "key",
+            "in" => "path",
+            "required" => true,
+            "description" => "Assets's key",
+            "schema" => %{
+              "type" => "string",
+              "format" => "uuid",
+              "pattern" => "^[a-fA-F\d]{24}$"
+            }
+          }
+        ],
+        "get" => %{
+          "summary" =>
+            "Returns a signed url for the given key - asset is available under that given url",
+          "responses" => %{
+            "200" => %{
+              "description" => "Returns list of all assets which belong to the logged in user",
+              "content" => %{
+                "application/json" => %{
+                  "schema" => %{
+                    "type" => "string",
+                    "description" => "url of asset"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete" => %{
+          "summary" => "Deletes the assets which is identified by key",
+          "responses" => %{
+            "201" => %{
+              "description" => "Assets was successfully deleted from bucket"
+            }
+          }
+        }
+      },
+      "/assets/upload" => %{
+        "security" => [
+          %{"bearerAuth" => []}
+        ],
+        "post" => %{
+          "summary" => "Uploads an asset",
+          "responses" => %{
+            "200" => %{
+              "description" => "Asset successfully added to bucket.",
+              "content" => %{
+                "application/json" => %{
+                  "schema" => %{
+                    "type" => "object",
+                    "properties" => %{
+                      "filename" => %{
+                        "type" => "string",
+                        "description" => "the name of the file (uuid)"
+                      },
+                      "url" => %{"type" => "string", "description" => "url to access it"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "get" => %{
+          "summary" => "List all assets",
+          "responses" => %{
+            "200" => %{
+              "description" => "Returns list of all assets which belong to the logged in user",
+              "content" => %{
+                "application/json" => %{
+                  "schema" => %{
+                    "type" => "object",
+                    "properties" => %{
+                      "e_tag" => %{"type" => "string", "description" => "unique identifier"},
+                      "key" => %{
+                        "type" => "string",
+                        "description" => "the name of the file (uuid)"
+                      },
+                      "last_modified" => %{
+                        "type" => "string",
+                        "description" => "ISO-date of last modification"
+                      },
+                      "size" => %{"type" => "string", "description" => "size in byte"},
+                      "url" => %{"type" => "string", "description" => "url to the object"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "/control/meta" => %{
         "get" => %{
           "summary" => "Get the current context and environment",

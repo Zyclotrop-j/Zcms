@@ -23,8 +23,9 @@
 body {
   margin: 1em;
 }
-#form {
-  width: 100vw;
+#form, #texteditor {
+  width: 100%;
+  min-height: 5vh;
 }
 </style>
 <select id="select" name="choice"></select>
@@ -86,7 +87,21 @@ afterLogin.then(() => {
       const isDone = fetch(`/api/v1/${data[nr].title}`).then(i => i.json()).then(d => {
         editor.enable();
         if(d.data.length > 0) {
-          editor.setValue(d.data[0]);
+          const out = [
+            "__owner__",
+            "_modified",
+            "_links",
+            "_lastModifiedBy",
+            "_id",
+            "_created",
+            "_author",
+            "_permissions"
+          ];
+          const q = Object.entries(d.data[0]).filter(([k]) => !out.includes(k)).reduce((p, [k, v]) => ({
+            ...p,
+            [k]: v
+          }), {});
+          editor.setValue(q);
         }
       });
       const f = function() {
