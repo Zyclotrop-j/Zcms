@@ -111,7 +111,7 @@ afterLogin.then(() => {
         } else {
           create.disabled = false;
         }
-        texteditor.value = JSON.stringify(editor.getValue());
+        texteditor.value = JSON.stringify(editor.getValue(), null, "  ");
         result.innerHTML = errors.length ? JSON.stringify(errors, null, "  ") : JSON.stringify(editor.getValue(), null, "  ");
       };
       textchange = (evt) => {
