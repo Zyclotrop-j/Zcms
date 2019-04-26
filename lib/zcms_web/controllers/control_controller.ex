@@ -23,14 +23,22 @@ defmodule ZcmsWeb.ControlController do
       |> Map.get("sub")
 
     settings = """
-    Signed in as "#{sub}"
-
+    SUB=#{sub}
     LIBCLUSTER_KUBERNETES_NODE_BASENAME=#{System.get_env("LIBCLUSTER_KUBERNETES_NODE_BASENAME")}
     LIBCLUSTER_KUBERNETES_SELECTOR=#{System.get_env("LIBCLUSTER_KUBERNETES_SELECTOR")}
     AUTH0_DOMAIN=#{System.get_env("AUTH0_DOMAIN")}
     CORS_ORIGINS=#{System.get_env("CORS_ORIGINS")}
     DB_HOSTNAME=#{System.get_env("DB_HOSTNAME")}
     MONGO_HOST=#{System.get_env("MONGO_HOST")}
+    MONGODB_NAME=#{System.get_env("MONGODB_NAME")}
+    AWS_S3_BUCKET=#{System.get_env("AWS_S3_BUCKET")}
+    HEROKU_APP_ID=#{System.get_env("HEROKU_APP_ID")}
+    HEROKU_APP_NAME=#{System.get_env("HEROKU_APP_NAME")}
+    HEROKU_DYNO_ID=#{System.get_env("HEROKU_DYNO_ID")}
+    HEROKU_RELEASE_CREATED_AT=#{System.get_env("HEROKU_RELEASE_CREATED_AT")}
+    HEROKU_RELEASE_VERSION=#{System.get_env("HEROKU_RELEASE_VERSION")}
+    HEROKU_SLUG_COMMIT=#{System.get_env("HEROKU_SLUG_COMMIT")}
+    HEROKU_SLUG_DESCRIPTION=#{System.get_env("HEROKU_SLUG_DESCRIPTION")}
     jwks=#{System.get_env("jwks")}
     version=#{version}
     app=#{Atom.to_string(appldesc)}
@@ -84,7 +92,7 @@ defmodule ZcmsWeb.ControlController do
                        "type" => "array",
                        "items" => %{
                          "$ref" =>
-                           "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
+                           "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
                              schemaid
                            }#/data"
                        }
@@ -105,7 +113,9 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      "$ref" =>
-                       "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{schemaid}#/data"
+                       "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
+                         schemaid
+                       }#/data"
                    }
                  }
                }
@@ -117,7 +127,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
+                         "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -167,7 +177,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
+                         "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -187,7 +197,9 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      "$ref" =>
-                       "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{schemaid}#/data"
+                       "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
+                         schemaid
+                       }#/data"
                    }
                  }
                }
@@ -199,7 +211,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
+                         "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -219,7 +231,9 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      "$ref" =>
-                       "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{schemaid}#/data"
+                       "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
+                         schemaid
+                       }#/data"
                    }
                  }
                }
@@ -231,7 +245,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
+                         "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -479,7 +493,7 @@ defmodule ZcmsWeb.ControlController do
         "version" => version
       },
       "servers" => [
-        %{"url" => "https://#{System.get_env("APP_NAME")}.herokuapp.com/"}
+        %{"url" => "https://#{System.get_env("HEROKU_APP_NAME")}.herokuapp.com/"}
       ],
       "components" => %{
         "securitySchemes" => %{
