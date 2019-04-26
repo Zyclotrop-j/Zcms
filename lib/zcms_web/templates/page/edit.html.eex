@@ -96,7 +96,7 @@ afterLogin.then(() => {
         } else {
           create.disabled = false;
         }
-        texteditor.value = editor.getValue();
+        texteditor.value = JSON.stringify(editor.getValue());
         result.innerHTML = errors.length ? JSON.stringify(errors, null, "  ") : JSON.stringify(editor.getValue(), null, "  ");
       };
       textchange = (evt) => {
