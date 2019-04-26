@@ -124,6 +124,7 @@ defmodule ZcmsWeb.Router do
     get("/swaggerui", PageController, :swaggerui)
     get("/graphiql", PageController, :graphiql)
     get("/edit", PageController, :edit)
+    get("/control/api", ControlController, :apiendpoints)
   end
 
   scope "/assets", ZcmsWeb do
@@ -154,9 +155,7 @@ defmodule ZcmsWeb.Router do
   end
 
   scope "/control", ZcmsWeb do
-    # , :auth
-    pipe_through([:jsonhtml])
-    get("/api", ControlController, :apiendpoints)
+    pipe_through([:jsonhtml, :auth])
     get("/meta", ControlController, :meta)
     get("/recompile", ControlController, :index)
   end
