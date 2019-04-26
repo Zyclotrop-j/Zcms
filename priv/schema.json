@@ -120,12 +120,16 @@
         },
         "definitions": {
             "type": "object",
-            "additionalProperties": { "$ref": "#" },
+            "patternProperties": {
+              "^[A-Za-z]+$": { "$ref": "#" }
+            },
             "default": {}
         },
         "properties": {
             "type": "object",
-            "additionalProperties": { "$ref": "#" },
+            "patternProperties": {
+              "^[A-Za-z]+$": { "$ref": "#" }
+            },
             "default": {}
         },
         "patternProperties": {
@@ -135,11 +139,13 @@
         },
         "dependencies": {
             "type": "object",
-            "additionalProperties": {
+            "patternProperties": {
+              "^[A-Za-z]+$": {
                 "anyOf": [
-                    { "$ref": "#" },
-                    { "$ref": "#/definitions/stringArray" }
+                  { "$ref": "#" },
+                  { "$ref": "#/definitions/stringArray" }
                 ]
+              }
             }
         },
         "enum": {
