@@ -27,7 +27,9 @@ body {
   width: 100vw;
 }
 </style>
+<select id="select" name="choice"></select>
 <div id="form"></div>
+<pre id="result"></pre>
 
 <script type="text/javascript">
 
@@ -48,19 +50,38 @@ const afterLogin = new Promise(resolve => {
 
 afterLogin.then(() => {
   console.log("Logged in");
+  let reset;
   fetch("/api/v1/schema").then(i => i.json()).then(i => {
-    console.log(i);
-    var options = {
-      "theme": "bootstrap3",
-      "template": "handlebars",
-      "iconlib": "bootstrap3",
-      "schema": {}
-    }
+    const data = i.data;
+    const select = document.getElementById("select");
+    const element = document.getElementById('form');
+    const result = document.getElementById('result');
 
-    var element = document.getElementById('form');
-    var editor = new JSONEditor(element, options);
+    const ihtml = data.map((i, idx) => `<option value="${idx}">${i.title}</option>`);
+    select.innerHTML = ihtml;
+    const onChange = nr => {
+      const options = {
+        "theme": "bootstrap3",
+        "template": "handlebars",
+        "iconlib": "bootstrap3",
+        "schema": data[nr]
+      }
+      const editor = new JSONEditor(element, options);
+      const f = function() {
+        const errors = editor.validate();
+        result.innerHTML = errors.length ? JSON.stringify(errors, null, "  ") : JSON.stringify(editor.getValue(), null, "  ");
+      };
+      editor.on('change', f);
+      return () => {
+        editor.off('change',f);
+        editor.destroy();
+      };
+    };
+    select.addEventListener("change", (evt) => {
+      reset();
+      reset = onChange(parseInt(evt.target.value));
+    });
+    reset = onChange(0);
   });
 });
-
-
 </script>
