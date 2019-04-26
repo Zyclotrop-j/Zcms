@@ -135,16 +135,17 @@ afterLogin.then(() => {
       };
 
       editor.on('change', f);
-      return () => {
+      return () =>
         isDone.then(() => {
           editor.off('change',f);
           editor.destroy();
-        });
-      };
+        })
+      ;
     };
     select.addEventListener("change", (evt) => {
-      reset();
-      reset = onChange(parseInt(evt.target.value));
+      reset().then(() => {
+        reset = onChange(parseInt(evt.target.value));
+      });
     });
     reset = onChange(0);
   });
