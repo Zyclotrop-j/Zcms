@@ -39,7 +39,8 @@
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <script src="https://cdn.auth0.com/js/auth0/9.5.1/auth0.min.js"></script>
     <script>
-      const cbx = [];
+      const t = window.onLogin || [];
+      const cbx = [...t];
       window.onLogin = function(f) {
         cbx.push(f);
       }

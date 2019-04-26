@@ -36,17 +36,23 @@ Handlebars.registerHelper("TimeStampToDateTime", function(ts) {
   return ts ? new Date(ts * 1000) : 'empty';
 });
 
-fetch("https://zcmsapi.herokuapp.com/api/v1/schema").then(i => i.json()).then(i => {
-  console.log(i);
-  var options = {
-    "theme": "bootstrap3",
-    "template": "handlebars",
-    "iconlib": "bootstrap3",
-    "schema": {}
-  }
+const afterLogin = new Promise(resolve => window.onLogin ? [() => resolve()] : window.onLogin(() => resolve()));
 
-  var element = document.getElementById('form');
-  var editor = new JSONEditor(element, options);
+afterLogin.then(() => {
+  console.log("Logged in");
+  fetch("https://zcmsapi.herokuapp.com/api/v1/schema").then(i => i.json()).then(i => {
+    console.log(i);
+    var options = {
+      "theme": "bootstrap3",
+      "template": "handlebars",
+      "iconlib": "bootstrap3",
+      "schema": {}
+    }
+
+    var element = document.getElementById('form');
+    var editor = new JSONEditor(element, options);
+  });
 });
+
 
 </script>

@@ -16,4 +16,8 @@ defmodule ZcmsWeb.PageController do
   def graphiql(conn, _params) do
     render(conn, "graphiql.html")
   end
+
+  def edit(conn, _params) do
+    render(conn, "edit.html")
+  end
 end

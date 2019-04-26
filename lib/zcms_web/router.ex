@@ -123,6 +123,7 @@ defmodule ZcmsWeb.Router do
     get("/login", PageController, :login)
     get("/swaggerui", PageController, :swaggerui)
     get("/graphiql", PageController, :graphiql)
+    get("/edit", PageController, :edit)
   end
 
   scope "/assets", ZcmsWeb do
