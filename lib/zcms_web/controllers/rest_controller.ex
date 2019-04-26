@@ -61,9 +61,17 @@ defmodule ZcmsWeb.RestController do
     |> String.replace(" ", "_")
   end
 
+  defp checkContentType(conn) do
+    case Enum.member?(conn |> get_req_header("content-type"), "application/json") do
+      true -> :ok
+      _ -> {:error, "Wrong content type"}
+    end
+  end
+
   def create(conn, rest_params, ttype) do
     {:ok, schema} = loadAndConvertJsonSchema(ttype, conn)
     :ok = validate(schema, rest_params)
+    :ok = checkContentType(conn)
 
     IO.puts("create")
     IO.inspect(rest_params)
@@ -121,6 +129,8 @@ defmodule ZcmsWeb.RestController do
   end
 
   def update(conn, %{"id" => id} = rest_params, ttype) do
+    :ok = checkContentType(conn)
+
     with {:ok, %{} = rest} <-
            Rest.update_rest(
              conn,
@@ -136,6 +146,8 @@ defmodule ZcmsWeb.RestController do
   end
 
   def replace(conn, %{"id" => id} = rest_params, ttype) do
+    :ok = checkContentType(conn)
+
     with {:ok, %{} = rest} <-
            Rest.replace_rest(
              conn,

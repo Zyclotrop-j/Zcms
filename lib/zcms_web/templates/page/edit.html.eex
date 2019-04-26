@@ -112,7 +112,8 @@ afterLogin.then(() => {
         fetch(`/api/v1/${data[nr].title}`, {
           method: "POST",
           mode: "cors",
-          body: JSON.stringify(editor.getValue())
+          body: JSON.stringify(editor.getValue()),
+          headers: { "content-type":"application/json" }
         }).then(() => {
           window.setTimeout(() => {
             status.innerHTML = "";
