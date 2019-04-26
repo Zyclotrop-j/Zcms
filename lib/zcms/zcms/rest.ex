@@ -48,7 +48,7 @@ defmodule Zcms.Resource.Rest do
     do:
       obj
       |> Map.put("_links", %{
-        "base" => "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/v1/",
+        "base" => "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/v1/",
         "links" => [
           %{
             "rel" => "self",

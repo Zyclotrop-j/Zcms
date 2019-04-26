@@ -84,7 +84,7 @@ defmodule ZcmsWeb.ControlController do
                        "type" => "array",
                        "items" => %{
                          "$ref" =>
-                           "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                           "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
                              schemaid
                            }#/data"
                        }
@@ -105,9 +105,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      "$ref" =>
-                       "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
-                         schemaid
-                       }#/data"
+                       "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{schemaid}#/data"
                    }
                  }
                }
@@ -119,7 +117,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -169,7 +167,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -189,9 +187,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      "$ref" =>
-                       "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
-                         schemaid
-                       }#/data"
+                       "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{schemaid}#/data"
                    }
                  }
                }
@@ -203,7 +199,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -223,9 +219,7 @@ defmodule ZcmsWeb.ControlController do
                  "application/json" => %{
                    "schema" => %{
                      "$ref" =>
-                       "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
-                         schemaid
-                       }#/data"
+                       "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{schemaid}#/data"
                    }
                  }
                }
@@ -237,7 +231,7 @@ defmodule ZcmsWeb.ControlController do
                    "application/json" => %{
                      "schema" => %{
                        "$ref" =>
-                         "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/api/schema/#{
+                         "https://#{System.get_env("APP_NAME")}.herokuapp.com/api/schema/#{
                            schemaid
                          }#/data"
                      }
@@ -387,7 +381,7 @@ defmodule ZcmsWeb.ControlController do
         "version" => version
       },
       "servers" => [
-        %{"url" => "https://#{System.get_env("APP_NAME")}.gigalixirapp.com/"}
+        %{"url" => "https://#{System.get_env("APP_NAME")}.herokuapp.com/"}
       ],
       "components" => %{
         "securitySchemes" => %{

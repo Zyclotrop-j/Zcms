@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :zcms, ZcmsWeb.Endpoint,
   load_from_system_env: true,
-  url: [scheme: "https", host: "${APP_NAME}.gigalixirapp.com", port: 443],
+  url: [scheme: "https", host: "${APP_NAME}.herokuapp.com", port: 443],
   # Needed for Phoenix 1.2 and 1.4. Doesn't hurt for 1.3.
   http: [port: {:system, "PORT"}],
   # Without this line, your app will not start the web server!

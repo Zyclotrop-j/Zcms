@@ -52,7 +52,7 @@
           domain: 'jannes.eu.auth0.com',
           clientID: 'ERsPWL3VKrVGWmIZhQ30otK6h4hqv3jI',
           responseType: 'token id_token code',
-          scope: 'offline_access openid profile email https://stark-profuse-basenji.gigalixirapp.com/app_metadata',
+          scope: 'offline_access openid profile email https://zcmsapi.herokuapp.com/app_metadata',
           redirectUri: window.location.href
         });
 
