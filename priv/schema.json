@@ -121,14 +121,14 @@
         "definitions": {
             "type": "object",
             "patternProperties": {
-              "^[A-Za-z]+$": { "$ref": "#" }
+              "^[_A-Za-z]+$": { "$ref": "#" }
             },
             "default": {}
         },
         "properties": {
             "type": "object",
             "patternProperties": {
-              "^[A-Za-z]+$": { "$ref": "#" }
+              "^[_A-Za-z]+$": { "$ref": "#" }
             },
             "default": {}
         },
@@ -140,7 +140,7 @@
         "dependencies": {
             "type": "object",
             "patternProperties": {
-              "^[A-Za-z]+$": {
+              "^[_A-Za-z]+$": {
                 "anyOf": [
                   { "$ref": "#" },
                   { "$ref": "#/definitions/stringArray" }

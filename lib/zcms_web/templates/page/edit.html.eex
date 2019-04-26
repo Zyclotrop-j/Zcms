@@ -57,7 +57,7 @@ let textchange = () => null;
 const create = document.getElementById('create');
 create.addEventListener("click", () => save());
 const texteditor = document.getElementById("texteditor");
-texteditor.addEventListener("click", () => textchange());
+texteditor.addEventListener("change", (a,b) => textchange(a,b));
 
 afterLogin.then(() => {
   console.log("Logged in");
@@ -139,8 +139,7 @@ afterLogin.then(() => {
         isDone.then(() => {
           editor.off('change',f);
           editor.destroy();
-        })
-      ;
+        });
     };
     select.addEventListener("change", (evt) => {
       reset().then(() => {
