@@ -36,11 +36,19 @@ Handlebars.registerHelper("TimeStampToDateTime", function(ts) {
   return ts ? new Date(ts * 1000) : 'empty';
 });
 
-const afterLogin = new Promise(resolve => window.onLogin ? [() => resolve()] : window.onLogin(() => resolve()));
+const afterLogin = new Promise(resolve => {
+  const check = (f) => {
+    if(window.onLogin) {
+      return window.onLogin(() => resolve());
+    }
+    return window.setTimeout(f, 100);
+  }
+  check(check);
+});
 
 afterLogin.then(() => {
   console.log("Logged in");
-  fetch("https://zcmsapi.herokuapp.com/api/v1/schema").then(i => i.json()).then(i => {
+  fetch("/api/v1/schema").then(i => i.json()).then(i => {
     console.log(i);
     var options = {
       "theme": "bootstrap3",
