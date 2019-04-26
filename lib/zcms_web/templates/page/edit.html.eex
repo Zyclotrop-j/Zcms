@@ -29,6 +29,8 @@ body {
 </style>
 <select id="select" name="choice"></select>
 <div id="form"></div>
+<button id="create">Create new</button>
+<div id="status"></div>
 <pre id="result"></pre>
 
 <script type="text/javascript">
@@ -48,6 +50,11 @@ const afterLogin = new Promise(resolve => {
   check(check);
 });
 
+let save = () => null;
+
+const create = document.getElementById('create');
+create.addEventListener("click", () => save());
+
 afterLogin.then(() => {
   console.log("Logged in");
   let reset;
@@ -56,6 +63,8 @@ afterLogin.then(() => {
     const select = document.getElementById("select");
     const element = document.getElementById('form');
     const result = document.getElementById('result');
+    const status = document.getElementById("status");
+
 
     const ihtml = data.map((i, idx) => `<option value="${idx}">${i.title}</option>`);
     select.innerHTML = ihtml;
@@ -66,15 +75,51 @@ afterLogin.then(() => {
         "iconlib": "bootstrap3",
         "schema": data[nr]
       }
+
       const editor = new JSONEditor(element, options);
+      editor.disable();
+      const isDone = fetch(`/api/v1/${data[nr].title}`).then(d => {
+        editor.enable();
+        if(d.data.length > 0) {
+          editor.setValue(d.data[0]);
+        }
+      });
       const f = function() {
         const errors = editor.validate();
         result.innerHTML = errors.length ? JSON.stringify(errors, null, "  ") : JSON.stringify(editor.getValue(), null, "  ");
       };
+
+      save = () => {
+        status.innerHTML = "....Saving....";
+        editor.disable();
+        fetch(`/api/v1/${data[nr].title}`, {
+          method: "POST",
+          mode: "cors",
+          body: JSON.stringify(editor.getValue())
+        }).then(() => {
+          window.setTimeout(() => {
+            status.innerHTML = "";
+          }, 5000);
+          status.innerHTML = "Success!!";
+          editor.enable();
+          editor.setValue({});
+        }).catch((...args) => {
+          console.error(args);
+          window.setTimeout(() => {
+            status.innerHTML = "";
+          }, 5000);
+          status.innerHTML = "Failiure!!";
+          editor.enable();
+          editor.setValue({});
+        });
+      };
+
       editor.on('change', f);
       return () => {
-        editor.off('change',f);
-        editor.destroy();
+        isDone.then(() => {
+          editor.off('change',f);
+          editor.destroy();
+        });
       };
     };
     select.addEventListener("change", (evt) => {
