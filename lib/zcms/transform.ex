@@ -321,11 +321,19 @@ defmodule Zcms.Application.Transformer do
     # get ref and process from there
     # ref.split("/").pop() -> name -> put that name to remember for recurse
     # put
-    [nil, nil]
+    # for now just treat it as string, add auto-loading later
+    [":string", ""]
   end
 
   def parse(%{"enum" => enum}, name, _) do
-    enum |> Enum.map(fn i -> "value #{i}" end) |> Enum.join("\n")
+    enum
+    |> Enum.map(fn i ->
+      case i do
+        nil -> "value _empty_"
+        str -> "value #{str}"
+      end
+    end)
+    |> Enum.join("\n")
 
     r = """
     enum :enum_#{name} do

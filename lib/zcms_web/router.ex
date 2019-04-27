@@ -6,10 +6,13 @@ defmodule ZcmsWeb.AuthMockplug do
   end
 
   def call(conn, _opts) do
-    conn
-    |> assign(:joken_claims, %{
-      "sub" => conn |> get_req_header("x-mock-sub") |> hd()
-    })
+    sub =
+      case get_req_header(conn, "x-mock-sub") do
+        [mock] -> mock
+        _ -> "DEFAUTL-MOCK-SUB"
+      end
+
+    assign(conn, :joken_claims, %{"sub" => sub})
   end
 end
 
