@@ -192,6 +192,12 @@ defmodule Zcms.Application.Transformer do
             {"""
              arg(:\"#{Macro.underscore(k)}\", #{type})
              """, data}
+
+          [type, data, resolver] ->
+            {"", data}
+
+          [type, data, resolver, qualifiedresolver] ->
+            {"", data}
         end
       end)
       |> Enum.unzip()
@@ -231,9 +237,20 @@ defmodule Zcms.Application.Transformer do
 
   defp match({k, v}, isQuery) do
     case parse(v, k, isQuery) do
-      [nil, nil] -> {"", ""}
-      [nil, data] -> {"", data}
-      [type, data] -> {"field(:\"#{Macro.underscore(k)}\", #{type})", data}
+      [nil, nil] ->
+        {"", ""}
+
+      [nil, data] ->
+        {"", data}
+
+      [type, data] ->
+        {"field(:\"#{Macro.underscore(k)}\", #{type})", data}
+
+      [type, data, resolver] ->
+        {"field(:\"#{Macro.underscore(k)}\", #{type}, resolve: loadOne(:zmongo))", data}
+
+      [type, data, resolver, qualifiedresolver] ->
+        {"field(:\"#{Macro.underscore(k)}\", #{type}, resolve: #{qualifiedresolver})", data}
     end
   end
 
@@ -277,9 +294,26 @@ defmodule Zcms.Application.Transformer do
 
   def parse(%{"type" => "array", "items" => i}, name, isQuery) do
     case parse(i, name, isQuery) do
-      [nil, nil] -> ["", ""]
-      [nil, data] -> ["", data]
-      [type, data] -> ["list_of(#{type})", data]
+      [nil, nil] ->
+        ["", ""]
+
+      [nil, data] ->
+        ["", data]
+
+      [type, data] ->
+        ["list_of(#{type})", data]
+
+      [type, data, resolver] ->
+        ["list_of(#{type})", data, resolver, "loadArray(:zmongo)"]
+    end
+  end
+
+  def parse(%{"type" => "string", "x-$ref" => ref}, name, isQuery) do
+    # field(:posts, list_of(:blog_post), resolve: loadMany(:zmongo, :user))
+    # field(:user, :accounts_user, resolve: loadOne(:zmongo))
+    case isQuery do
+      true -> [":string", ""]
+      _ -> [":" <> ref, "", "_id"]
     end
   end
 

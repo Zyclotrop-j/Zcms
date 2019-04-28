@@ -23,7 +23,12 @@ defmodule Zcms.Loaders.Mongo do
             idmatchingfield
             |> Atom.to_string()
 
-          argss = %{:coll => type, :field => {field, "$id"}, :rightHand => r._id}
+          argss = %{
+            :coll => type,
+            :field => {field, "$id"},
+            :rightHand => r._id,
+            :conn => res.context.conn
+          }
 
           # # TODO: nesting for filterfn d[d] is %{}
 
@@ -42,6 +47,53 @@ defmodule Zcms.Loaders.Mongo do
     end
   end
 
+  def loadArray(source) do
+    fn r, args, %{context: %{loader: loader}} = res ->
+      # This is list?
+      resource = res.definition.schema_node.identifier
+
+      if Map.has_key?(r, resource) do
+        type =
+          case Enum.find(res.path, fn x -> x.schema_node.identifier == resource end).schema_node.type do
+            %{of_type: x} -> x
+            val -> val
+          end
+          |> Atom.to_string()
+          |> Macro.camelize()
+
+        rh =
+          if is_map(r[resource]) && Map.has_key?(r[resource], :"$id"),
+            do: r[resource][:"$id"],
+            else: r[resource]
+
+        argss =
+          rh
+          |> Enum.map(fn q ->
+            %{:coll => type, :field => {"_id"}, :rightHand => q, :conn => res.context.conn}
+          end)
+
+        filterfn = fn d ->
+          Map.keys(args) |> Enum.all?(fn u -> d[u] && d[u] == args[u] end)
+        end
+
+        loader
+        |> Dataloader.load_many(source, type <> "By_id", argss)
+        |> on_load(fn loader ->
+          w = Dataloader.get_many(loader, source, type <> "By_id", argss)
+          IO.puts("3434!!!!!!!!")
+          IO.inspect(w)
+
+          {:ok,
+           w
+           |> Enum.map(fn x -> x |> Enum.filter(filterfn) end)
+           |> Enum.map(fn x -> x |> List.first() end)}
+        end)
+      else
+        []
+      end
+    end
+  end
+
   def loadOne(source) do
     fn r, args, %{context: %{loader: loader}} = res ->
       resource = res.definition.schema_node.identifier
@@ -55,7 +107,12 @@ defmodule Zcms.Loaders.Mongo do
           |> Atom.to_string()
           |> Macro.camelize()
 
-        argss = %{:coll => type, :field => {"_id"}, :rightHand => r[resource][:"$id"]}
+        IO.puts("1!!2")
+        IO.inspect(r[resource])
+
+        rh = if is_binary(r[resource]), do: r[resource], else: r[resource][:"$id"]
+
+        argss = %{:coll => type, :field => {"_id"}, :rightHand => rh, :conn => res.context.conn}
 
         filterfn = fn d -> Map.keys(args) |> Enum.all?(fn u -> d[u] && d[u] == args[u] end) end
 
@@ -79,22 +136,33 @@ defmodule Zcms.Loaders.Mongo do
 
   def fetch(batch, args) do
     # %{ :coll => type, :field => field, :operator => (fn (a,b) -> a == b end), :rightHand => r._id }
-    rHandVals =
+
+    conn =
       args
-      |> Enum.map(fn arg -> arg.rightHand end)
+      |> Enum.map(fn arg -> arg.conn end)
+      |> Enum.at(0)
 
     coll =
       args
       |> MapSet.to_list()
       |> List.first()
 
-    # endable early exit if no rHandVals
+    field = Enum.join(Tuple.to_list(coll.field), ".")
+
+    conv = if field == "_id", do: fn x -> BSON.ObjectId.decode!(x) end, else: & &1
+
+    rHandVals =
+      args
+      |> Enum.map(fn arg -> arg.rightHand end)
+      |> Enum.map(conv)
+
+    # %{assigns: %{joken_claims: %{"sub" => sub}}},
+
     qresult =
-      Mongo.find(
-        :mongo,
-        coll.coll,
-        %{Enum.join(Tuple.to_list(coll.field), ".") => %{"$in" => rHandVals}},
-        pool: DBConnection.Poolboy
+      Zcms.Resource.Rest.list_rests(
+        conn,
+        coll.coll |> String.downcase(),
+        %{Enum.join(Tuple.to_list(coll.field), ".") => %{"$in" => rHandVals}}
       )
 
     args
@@ -104,7 +172,7 @@ defmodule Zcms.Loaders.Mongo do
         arg,
         qresult
         |> Enum.filter(fn x ->
-          Kernel.get_in(x, Tuple.to_list(coll.field)) == arg.rightHand
+          Kernel.get_in(x, Tuple.to_list(coll.field)) == conv.(arg.rightHand)
         end)
         |> Enum.map(&Zcms.Generic.Resolver.string_key_map_to_atom/1)
         |> Enum.to_list()
