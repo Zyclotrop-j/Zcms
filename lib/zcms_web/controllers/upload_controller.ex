@@ -1,9 +1,7 @@
 defmodule ZcmsWeb.UploadController do
   use ZcmsWeb, :controller
 
-  def index(conn, _params) do
-    %{assigns: %{joken_claims: %{"sub" => sub}}} = conn
-
+  def index(%{assigns: %{joken_claims: %{"sub" => sub}}} = conn, _params) do
     # list_buckets()
     # , prefix: "default"
     stream =
@@ -33,9 +31,9 @@ defmodule ZcmsWeb.UploadController do
     )
   end
 
-  def show(conn, params) do
-    %{assigns: %{joken_claims: %{"sub" => sub}}} = conn
+  def index(conn, _params), do: conn |> send_resp(401, "")
 
+  def show(%{assigns: %{joken_claims: %{"sub" => sub}}} = conn, params) do
     response =
       Zcms.Resource.Asset.url("#{Base.url_encode64(sub, padding: false)}/#{params["id"]}",
         signed: true
@@ -46,7 +44,11 @@ defmodule ZcmsWeb.UploadController do
     |> text(response |> Poison.encode!())
   end
 
-  def create(conn, %{"file" => %Plug.Upload{:path => path}}) do
+  def show(conn, _params), do: conn |> send_resp(401, "")
+
+  def create(%{assigns: %{joken_claims: %{"sub" => sub}}} = conn, %{
+        "file" => %Plug.Upload{:path => path}
+      }) do
     %{assigns: %{joken_claims: %{"sub" => sub}}} = conn
 
     file_uuid = UUID.uuid4(:hex)
@@ -70,7 +72,9 @@ defmodule ZcmsWeb.UploadController do
     )
   end
 
-  def delete(conn, params) do
+  def create(conn, _params), do: conn |> send_resp(401, "")
+
+  def delete(%{assigns: %{joken_claims: %{"sub" => sub}}} = conn, params) do
     %{assigns: %{joken_claims: %{"sub" => sub}}} = conn
 
     :ok = Zcms.Resource.Asset.delete("#{Base.url_encode64(sub, padding: false)}/#{params["id"]}")
@@ -78,4 +82,6 @@ defmodule ZcmsWeb.UploadController do
     conn
     |> send_resp(201, "")
   end
+
+  def delete(conn, _params), do: conn |> send_resp(401, "")
 end
