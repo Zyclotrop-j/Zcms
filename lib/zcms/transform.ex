@@ -262,6 +262,11 @@ defmodule Zcms.Application.Transformer do
       |> Enum.map(fn x -> match(x, isQuery) end)
       |> Enum.unzip()
 
+    # # TODO: test
+    # Also # TODO: Maybe change to required
+    isTypeOfFn =
+      p |> Enum.map(fn x -> "Map.has_key?(mm, \"#{elem(x, 0)}\")" end) |> Enum.join(" && ")
+
     fields = fields |> Enum.join("\n  ")
     data = data |> Enum.join("\n")
 
@@ -269,6 +274,9 @@ defmodule Zcms.Application.Transformer do
     object :#{Macro.underscore(name)} do
       field(:_id, :id)
       #{fields}
+      is_type_of(fn mm ->
+        mm[:"x-type"] == "#{Macro.underscore(name)}"
+      end)
     end
     """
 
@@ -383,16 +391,79 @@ defmodule Zcms.Application.Transformer do
     [nil, nil]
   end
 
-  def parse(%{"anyOf" => listofsubschema}, name, _) do
+  def parse(
+        %{"anyOf" => [%{"x-$ref" => _, "type" => "string"} | t] = listofsubschema},
+        name,
+        isQuery
+      ) do
     # TODO
     # define union of listofsubschema
+    # ensumre all oneOf do not refer to primities like string or number
+    # we can't enforce all items in union to be the same, must do this via validation
+    typen = listofsubschema |> Enum.map(fn i -> "#{i["x-$ref"]}" end)
+    union = "union_" <> (typen |> Enum.join("_")) <> "_" <> random_string(64)
+    types = typen |> Enum.map(fn i -> ":#{i}" end) |> Enum.join(", ")
+
+    case isQuery do
+      true ->
+        [":string", ""]
+
+      _ ->
+        [
+          ":" <> union,
+          """
+          union :#{union} do
+            description "Union of #{types}"
+
+            types [#{types}]
+          end
+          """,
+          "_id"
+        ]
+    end
+  end
+
+  def parse(%{"anyOf" => _}, _, _) do
     [nil, nil]
   end
 
-  def parse(%{"oneOf" => listofsubschema}, name, _) do
+  defp random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.encode32() |> binary_part(0, length)
+  end
+
+  def parse(
+        %{"oneOf" => [%{"x-$ref" => _, "type" => "string"} | t] = listofsubschema},
+        name,
+        isQuery
+      ) do
     # TODO
     # define union of listofsubschema
+    # ensumre all oneOf do not refer to primities like string or number
     # we can't enforce all items in union to be the same, must do this via validation
+    typen = listofsubschema |> Enum.map(fn i -> "#{i["x-$ref"]}" end)
+    union = "union_" <> (typen |> Enum.join("_")) <> "_" <> random_string(64)
+    types = typen |> Enum.map(fn i -> ":#{i}" end) |> Enum.join(", ")
+
+    case isQuery do
+      true ->
+        [":string", ""]
+
+      _ ->
+        [
+          ":" <> union,
+          """
+          union :#{union} do
+            description "Union of #{types}"
+
+            types [#{types}]
+          end
+          """,
+          "_id"
+        ]
+    end
+  end
+
+  def parse(%{"oneOf" => _}, _, _) do
     [nil, nil]
   end
 

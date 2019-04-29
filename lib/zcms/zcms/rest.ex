@@ -60,6 +60,8 @@ defmodule Zcms.Resource.Rest do
           }
         ]
       })
+      |> Map.put("x-type", "#{type}")
+      |> Map.put("x-id", "#{obj["_id"]}")
 
   defp addNewPermissionSet(obj, read_only_conn, type, _, schema \\ nil) do
     sub = read_only_conn.assigns.joken_claims["sub"]
