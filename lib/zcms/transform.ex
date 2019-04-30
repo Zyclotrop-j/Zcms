@@ -70,9 +70,9 @@ defmodule Zcms.Application.Transformer do
     """
 
   def compile(name, ct) do
-    # {:ok, file} = File.open(name <> ".debug", [:write])
-    # IO.binwrite(file, ct)
-    # File.close(file)
+    {:ok, file} = File.open(name <> ".debug", [:write])
+    IO.binwrite(file, ct)
+    File.close(file)
     # Compile to memory!!!
     IO.puts("COMPILING #{name}")
     IO.inspect(ct)
@@ -368,18 +368,19 @@ defmodule Zcms.Application.Transformer do
   end
 
   def parse(%{"enum" => enum}, name, _) do
-    enum
-    |> Enum.map(fn i ->
-      case i do
-        nil -> "value _empty_"
-        str -> "value #{str}"
-      end
-    end)
-    |> Enum.join("\n")
+    q =
+      enum
+      |> Enum.map(fn i ->
+        case i do
+          nil -> "value :\"_empty_\", as nil"
+          str -> "value :#{str}, as: \"#{str}\""
+        end
+      end)
+      |> Enum.join("\n")
 
     r = """
     enum :enum_#{name} do
-      #{enum}
+      #{q}
     end
     """
 
