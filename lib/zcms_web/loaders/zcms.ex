@@ -245,7 +245,16 @@ defmodule Zcms.Loaders.Mongo do
 
     field = Enum.join(Tuple.to_list(coll.field), ".")
 
-    conv = if field == "_id", do: fn x -> BSON.ObjectId.decode!(x) end, else: & &1
+    conv =
+      if field == "_id",
+        do: fn x ->
+          case x do
+            nil -> nil
+            "" -> ""
+            _ -> BSON.ObjectId.decode!(x)
+          end
+        end,
+        else: & &1
 
     rHandVals =
       args
