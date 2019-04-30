@@ -70,9 +70,9 @@ defmodule Zcms.Application.Transformer do
     """
 
   def compile(name, ct) do
-    {:ok, file} = File.open(name <> ".debug", [:write])
-    IO.binwrite(file, ct)
-    File.close(file)
+    # {:ok, file} = File.open(name <> ".debug", [:write])
+    # IO.binwrite(file, ct)
+    # File.close(file)
     # Compile to memory!!!
     IO.puts("COMPILING #{name}")
     IO.inspect(ct)
