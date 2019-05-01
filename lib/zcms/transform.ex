@@ -401,7 +401,11 @@ defmodule Zcms.Application.Transformer do
     # define union of listofsubschema
     # ensumre all oneOf do not refer to primities like string or number
     # we can't enforce all items in union to be the same, must do this via validation
-    typen = listofsubschema |> Enum.map(fn i -> "#{i["x-$ref"]}" end)
+    typen =
+      listofsubschema
+      |> Enum.map(fn i -> "#{i["x-$ref"]}" end)
+      |> Enum.filter(fn x -> x != nil && x != "" end)
+
     union = "union_" <> (typen |> Enum.join("_")) <> "_" <> random_string(64)
     types = typen |> Enum.map(fn i -> ":#{i}" end) |> Enum.join(", ")
 
