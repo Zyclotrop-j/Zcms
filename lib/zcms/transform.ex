@@ -378,13 +378,15 @@ defmodule Zcms.Application.Transformer do
       end)
       |> Enum.join("\n")
 
+    rand = "_" <> random_string(64)
+
     r = """
-    enum :enum_#{name} do
+    enum :enum_#{name}#{rand} do
       #{q}
     end
     """
 
-    [":enum_#{name}", r]
+    [":enum_#{name}#{rand}", r]
   end
 
   def parse(%{"const" => const}, name, _) do
@@ -393,7 +395,7 @@ defmodule Zcms.Application.Transformer do
   end
 
   def parse(
-        %{"anyOf" => [%{"x-$ref" => _, "type" => "string"} | t] = listofsubschema},
+        %{"anyOf" => listofsubschema},
         name,
         isQuery
       ) do
@@ -426,10 +428,6 @@ defmodule Zcms.Application.Transformer do
           "_id"
         ]
     end
-  end
-
-  def parse(%{"anyOf" => _}, _, _) do
-    [nil, nil]
   end
 
   defp random_string(length) do
