@@ -10,7 +10,7 @@ defmodule Zcms.Generic.Resolver do
       %{} ->
         for {key, val} <- string_key_map,
             into: %{},
-            do: {String.to_atom(key), string_key_map_to_atom(val)}
+            do: {String.to_atom(Macro.underscore(key)), string_key_map_to_atom(val)}
 
       val ->
         val
