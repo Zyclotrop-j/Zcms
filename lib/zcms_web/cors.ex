@@ -7,8 +7,8 @@ defmodule ZcmsWeb.CORS do
     ],
     allow_credentials: true,
     max_age: 600,
-    expose_headers: ~w(x-expires authorization location x-user),
-    allow_headers: ~w(x-expires authorization location x-user),
+    expose_headers: ~w(x-expires authorization location x-user content-type),
+    allow_headers: ~w(x-expires authorization location x-user content-type),
     allow_methods: ["GET"]
 
   resource("/api/v1/*",
@@ -20,10 +20,10 @@ defmodule ZcmsWeb.CORS do
     allow_credentials: true,
     max_age: 600,
     expose_headers:
-      ~w(x-expires authorization location x-user) ++
+      ~w(x-expires authorization location x-user content-type) ++
         if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_headers:
-      ~w(x-expires authorization location x-user) ++
+      ~w(x-expires authorization location x-user content-type) ++
         if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_methods: ["PUT", "PATCH", "DELETE", "POST", "GET", "OPTIONS"]
   )
@@ -37,10 +37,10 @@ defmodule ZcmsWeb.CORS do
     allow_credentials: true,
     max_age: 600,
     expose_headers:
-      ~w(x-expires authorization location x-user) ++
+      ~w(x-expires authorization location x-user content-type) ++
         if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_headers:
-      ~w(x-expires authorization location x-user) ++
+      ~w(x-expires authorization location x-user content-type) ++
         if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
     allow_methods: ["POST", "GET", "OPTIONS"]
   )
