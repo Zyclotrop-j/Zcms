@@ -266,7 +266,7 @@ defmodule Zcms.Resource.Rest do
   defp createError(type, _, _),
     do: {:error, "Couldn't insert new #{type}"}
 
-  defp addDraft(argsmap), do: argsmap |> Map.update("_draft", true, & &1)
+  defp addDraft(argsmap), do: argsmap |> Map.update("_draft", false, & &1)
 
   @doc """
   Creates a rest.
