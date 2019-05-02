@@ -70,9 +70,9 @@ defmodule Zcms.Application.Transformer do
     """
 
   def compile(name, ct) do
-    # {:ok, file} = File.open(name <> ".debug", [:write])
-    # IO.binwrite(file, ct)
-    # File.close(file)
+    {:ok, file} = File.open(name <> ".debug", [:write])
+    IO.binwrite(file, ct)
+    File.close(file)
     # Compile to memory!!!
     IO.puts("COMPILING #{name}")
     IO.inspect(ct)
@@ -411,22 +411,28 @@ defmodule Zcms.Application.Transformer do
     union = "union_" <> (typen |> Enum.join("_")) <> "_" <> random_string(64)
     types = typen |> Enum.map(fn i -> ":#{i}" end) |> Enum.join(", ")
 
-    case isQuery do
-      true ->
+    case typen do
+      [] ->
         [":string", ""]
 
       _ ->
-        [
-          ":" <> union,
-          """
-          union :#{union} do
-            description "Union of #{types}"
+        case isQuery do
+          true ->
+            [":string", ""]
 
-            types [#{types}]
-          end
-          """,
-          "_id"
-        ]
+          _ ->
+            [
+              ":" <> union,
+              """
+              union :#{union} do
+                description "Union of #{types}"
+
+                types [#{types}]
+              end
+              """,
+              "_id"
+            ]
+        end
     end
   end
 
