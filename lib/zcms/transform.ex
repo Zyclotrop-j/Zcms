@@ -243,15 +243,14 @@ defmodule Zcms.Application.Transformer do
       [nil, data] ->
         {"", data}
 
-      # Macro.underscore
       [type, data] ->
-        {"field(:\"#{k}\", #{type})", data}
+        {"field(:\"#{Macro.underscore(k)}\", #{type})", data}
 
       [type, data, resolver] ->
-        {"field(:\"#{k}\", #{type}, resolve: loadOne(:zmongo))", data}
+        {"field(:\"#{Macro.underscore(k)}\", #{type}, resolve: loadOne(:zmongo))", data}
 
       [type, data, resolver, qualifiedresolver] ->
-        {"field(:\"#{k}\", #{type}, resolve: #{qualifiedresolver})", data}
+        {"field(:\"#{Macro.underscore(k)}\", #{type}, resolve: #{qualifiedresolver})", data}
     end
   end
 
