@@ -2,6 +2,8 @@ defmodule MalformedSchema do
   defexception message: "malformed json-schema"
 end
 
+:random.seed(1_234_567_890)
+
 defmodule Zcms.Application.Transformer do
   defp baseschema(),
     do: """
@@ -131,7 +133,7 @@ defmodule Zcms.Application.Transformer do
 
         [_, add] =
           json
-          |> parse(filename)
+          |> parse(filename, false, true)
 
         {:ok, file} =
           compile(
@@ -177,11 +179,11 @@ defmodule Zcms.Application.Transformer do
     :ok
   end
 
-  def query(%{"type" => "object", "properties" => p}, name) do
+  def query(%{"type" => "object", "properties" => p} = root, name) do
     {args, inputData} =
       p
       |> Enum.map(fn {k, v} ->
-        case parse(v, k, true) do
+        case parse(v, k, true, false) do
           [nil, nil] ->
             {"", ""}
 
@@ -235,8 +237,8 @@ defmodule Zcms.Application.Transformer do
     {querys, mutations, inputData |> Enum.join("\n  ")}
   end
 
-  defp match({k, v}, isQuery) do
-    case parse(v, k, isQuery) do
+  defp match({k, v}, isQuery, isRoot) do
+    case parse(v, k, isQuery, isRoot) do
       [nil, nil] ->
         {"", ""}
 
@@ -254,12 +256,14 @@ defmodule Zcms.Application.Transformer do
     end
   end
 
-  def parse(x, y), do: parse(x, y, false)
+  def parse(x, y), do: parse(x, y, false, false)
 
-  def parse(%{"type" => "object", "properties" => p}, name, isQuery) do
+  def parse(%{"type" => "object", "properties" => p}, xname, isQuery, isRoot) do
+    name = if isRoot, do: xname, else: xname <> "_mod_" <> random_string(8)
+
     {fields, data} =
       p
-      |> Enum.map(fn x -> match(x, isQuery) end)
+      |> Enum.map(fn x -> match(x, isQuery, false) end)
       |> Enum.unzip()
 
     # # TODO: test
@@ -292,16 +296,16 @@ defmodule Zcms.Application.Transformer do
     [":" <> ((isQuery && "input_") || "") <> Macro.underscore(name), additionalQueryData <> data]
   end
 
-  def parse(%{"type" => "object", "additionalProperties" => additionalProperties}, name, _) do
+  def parse(%{"type" => "object", "additionalProperties" => additionalProperties}, name, _, _) do
     [":json", ""]
   end
 
-  def parse(%{"type" => "object", "patternProperties" => patternProperties}, name, _) do
+  def parse(%{"type" => "object", "patternProperties" => patternProperties}, name, _, _) do
     [":json", ""]
   end
 
-  def parse(%{"type" => "array", "items" => i}, name, isQuery) do
-    case parse(i, name, isQuery) do
+  def parse(%{"type" => "array", "items" => i}, name, isQuery, isRoot) do
+    case parse(i, name, isQuery, isRoot) do
       [nil, nil] ->
         ["", ""]
 
@@ -316,7 +320,7 @@ defmodule Zcms.Application.Transformer do
     end
   end
 
-  def parse(%{"type" => "string", "x-$ref" => ref}, name, isQuery) do
+  def parse(%{"type" => "string", "x-$ref" => ref}, name, isQuery, _) do
     # field(:posts, list_of(:blog_post), resolve: loadMany(:zmongo, :user))
     # field(:user, :accounts_user, resolve: loadOne(:zmongo))
     case isQuery do
@@ -325,40 +329,40 @@ defmodule Zcms.Application.Transformer do
     end
   end
 
-  def parse(%{"type" => "string"}, name, _) do
+  def parse(%{"type" => "string"}, name, _, _) do
     [":string", ""]
   end
 
-  def parse(%{"type" => "number"}, name, _) do
+  def parse(%{"type" => "number"}, name, _, _) do
     [":float", ""]
   end
 
-  def parse(%{"type" => "integer"}, name, _) do
+  def parse(%{"type" => "integer"}, name, _, _) do
     [":integer", ""]
   end
 
-  def parse(%{"type" => "boolean"}, name, _) do
+  def parse(%{"type" => "boolean"}, name, _, _) do
     [":boolean", ""]
   end
 
-  def parse(%{"type" => "null"}, name, _) do
+  def parse(%{"type" => "null"}, name, _, _) do
     [":null", ""]
   end
 
-  def parse(%{"type" => "array"}, name, isQuery) do
+  def parse(%{"type" => "array"}, name, isQuery, _) do
     # Without items we don't know what the list is of
     [nil, nil]
   end
 
-  def parse(%{"type" => other}, name, _) do
+  def parse(%{"type" => other}, name, _, _) do
     raise MalformedSchema, message: "found unknow type #{other}"
   end
 
-  def parse(%{"ref" => _, "type" => _}, name, _) do
+  def parse(%{"ref" => _, "type" => _}, name, _, _) do
     raise MalformedSchema, message: "found ref and type on same node - not allowed"
   end
 
-  def parse(%{"ref" => ref}, name, _) do
+  def parse(%{"ref" => ref}, name, _, _) do
     # TODO
     # get ref and process from there
     # ref.split("/").pop() -> name -> put that name to remember for recurse
@@ -367,7 +371,7 @@ defmodule Zcms.Application.Transformer do
     [":string", ""]
   end
 
-  def parse(%{"enum" => enum}, name, _) do
+  def parse(%{"enum" => enum}, name, _, _) do
     q =
       enum
       |> Enum.map(fn i ->
@@ -389,7 +393,7 @@ defmodule Zcms.Application.Transformer do
     [":enum_#{name}#{rand}", r]
   end
 
-  def parse(%{"const" => const}, name, _) do
+  def parse(%{"const" => const}, name, _, _) do
     # TODO
     [nil, nil]
   end
@@ -397,7 +401,8 @@ defmodule Zcms.Application.Transformer do
   def parse(
         %{"anyOf" => listofsubschema},
         name,
-        isQuery
+        isQuery,
+        _
       ) do
     # TODO
     # define union of listofsubschema
@@ -437,13 +442,14 @@ defmodule Zcms.Application.Transformer do
   end
 
   defp random_string(length) do
-    :crypto.strong_rand_bytes(length) |> Base.encode32() |> binary_part(0, length)
+    :random.uniform(Kernel.trunc(:math.pow(2, 8 * length))) |> Integer.to_string(36)
   end
 
   def parse(
         %{"oneOf" => [%{"x-$ref" => _, "type" => "string"} | t] = listofsubschema},
         name,
-        isQuery
+        isQuery,
+        _
       ) do
     # TODO
     # define union of listofsubschema
@@ -472,21 +478,21 @@ defmodule Zcms.Application.Transformer do
     end
   end
 
-  def parse(%{"oneOf" => _}, _, _) do
+  def parse(%{"oneOf" => _}, _, _, _) do
     [nil, nil]
   end
 
-  def parse(%{"allOf" => listofsubschema}, name, _) do
+  def parse(%{"allOf" => listofsubschema}, name, _, _) do
     # TODO
     # ?????, maybe search for first one with type/enum/const?
     [nil, nil]
   end
 
-  def parse(%{}, name, _) do
+  def parse(%{}, name, _, _) do
     [nil, nil]
   end
 
-  def parse(True, name, _) do
+  def parse(True, name, _, _) do
     [nil, nil]
   end
 end

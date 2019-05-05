@@ -60,6 +60,8 @@ defmodule Zcms.Generic.Resolver do
       end
       |> Atom.to_string()
       |> Macro.camelize()
+      |> String.split("_mod_")
+      |> hd()
 
     query = flatten_to_json_path(argsmap)
 
@@ -76,6 +78,8 @@ defmodule Zcms.Generic.Resolver do
       end
       |> Atom.to_string()
       |> Macro.camelize()
+      |> String.split("_mod_")
+      |> hd()
 
     query = flatten_to_json_path(argsmap)
 
