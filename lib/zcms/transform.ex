@@ -211,6 +211,7 @@ defmodule Zcms.Application.Transformer do
       end
       field :#{name}s, list_of(:#{name}) do
         arg(:_id, :id)
+        arg(:_ids, list_of(non_null(:id)))
         #{args |> Enum.join("    ")}
         resolve(&Zcms.Generic.Resolver.all/3)
       end

@@ -63,7 +63,25 @@ defmodule Zcms.Generic.Resolver do
       |> String.split("_mod_")
       |> hd()
 
-    query = flatten_to_json_path(argsmap)
+    IO.puts("!!!!!!!!!!!!!")
+    IO.inspect(argsmap)
+
+    query =
+      cond do
+        argsmap[:_ids] ->
+          %{
+            "_id" => %{
+              "$in" =>
+                argsmap[:_ids]
+                |> Enum.map(&BSON.ObjectId.decode!/1)
+            }
+          }
+
+        true ->
+          flatten_to_json_path(argsmap)
+      end
+
+    IO.inspect(query)
 
     Zcms.Resource.Rest.list_rests(info.context.conn, type |> String.downcase(), query, fn i ->
       {:ok, i |> Enum.map(&string_key_map_to_atom/1) |> Enum.to_list()}
