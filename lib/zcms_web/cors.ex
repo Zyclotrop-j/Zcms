@@ -2,6 +2,8 @@ defmodule ZcmsWeb.CORS do
   use Corsica.Router,
     origins: [
       "http://localhost",
+      "http://localhost:4000",
+      "http://localhost:8000",
       ~r<^https://([a-zA-Z]+\.)#{System.get_env("CORS_ORIGINS")}$>,
       ~s<https://#{System.get_env("CORS_ORIGINS")}>
     ],
@@ -14,6 +16,8 @@ defmodule ZcmsWeb.CORS do
   resource("/api/v1/*",
     origins: [
       "http://localhost",
+      "http://localhost:4000",
+      "http://localhost:8000",
       ~r<^https://([a-zA-Z]+\.)#{System.get_env("CORS_ORIGINS")}$>,
       ~s<https://#{System.get_env("CORS_ORIGINS")}>
     ],
@@ -31,6 +35,8 @@ defmodule ZcmsWeb.CORS do
   resource("/apig/*",
     origins: [
       "http://localhost",
+      "http://localhost:4000",
+      "http://localhost:8000",
       ~r<^https://([a-zA-Z]+\.)#{System.get_env("CORS_ORIGINS")}$>,
       ~s<https://#{System.get_env("CORS_ORIGINS")}>
     ],

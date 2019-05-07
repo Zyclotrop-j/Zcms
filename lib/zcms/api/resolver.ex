@@ -63,9 +63,6 @@ defmodule Zcms.Generic.Resolver do
       |> String.split("_mod_")
       |> hd()
 
-    IO.puts("!!!!!!!!!!!!!")
-    IO.inspect(argsmap)
-
     query =
       cond do
         argsmap[:_ids] ->
@@ -80,8 +77,6 @@ defmodule Zcms.Generic.Resolver do
         true ->
           flatten_to_json_path(argsmap)
       end
-
-    IO.inspect(query)
 
     Zcms.Resource.Rest.list_rests(info.context.conn, type |> String.downcase(), query, fn i ->
       {:ok, i |> Enum.map(&string_key_map_to_atom/1) |> Enum.to_list()}
@@ -106,7 +101,7 @@ defmodule Zcms.Generic.Resolver do
       type |> String.downcase(),
       query,
       fn item -> {:ok, string_key_map_to_atom(item)} end,
-      fn ->
+      fn _, _, _ ->
         {:error,
          ("Not found query " <> Enum.map(argsmap, fn {key, value} -> "#{key}=#{value}" end))
          |> Enum.join("&")}
