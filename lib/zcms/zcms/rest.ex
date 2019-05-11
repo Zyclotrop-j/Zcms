@@ -165,6 +165,10 @@ defmodule Zcms.Resource.Rest do
     }
   end
 
+  defp buildpermissionquery(_, _) do
+    raise ZcmsWeb.Unauthenticated
+  end
+
   defp stripOwner(query),
     do:
       query
