@@ -29,7 +29,7 @@ defmodule ZcmsWeb.CORS do
     allow_headers:
       ~w(x-expires authorization location x-user content-type) ++
         if(Application.get_env(:zcms, :environment) == :prod, do: ["x-mock-sub"], else: []),
-    allow_methods: ["PUT", "PATCH", "DELETE", "POST", "GET", "OPTIONS"]
+    allow_methods: ["PUT", "PATCH", "DELETE", "POST", "GET", "OPTIONS", "UPDATE"]
   )
 
   resource("/apig/*",
