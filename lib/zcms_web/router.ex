@@ -147,7 +147,7 @@ defmodule ZcmsWeb.Router do
     get("/:resource/:id", RestController, :show)
     post("/:resource", RestController, :create)
     put("/:resource/:id", RestController, :replace)
-    match(:update, "/:resource/:id", RestController, :update)
+    post("/:resource/:id", RestController, :update)
     patch("/:resource/:id", RestConroller, :patch)
     delete("/:resource/:id", RestController, :delete)
   end
