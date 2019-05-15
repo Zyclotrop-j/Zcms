@@ -145,6 +145,23 @@ defmodule ZcmsWeb.RestController do
     end
   end
 
+  def patch(conn, %{"id" => id} = rest_params, ttype) do
+    :ok = checkContentType(conn)
+
+    with {:ok, %{} = rest} <-
+           Rest.patch_rest(
+             conn,
+             ttype,
+             id,
+             rest_params |> Map.delete("id") |> Map.delete("title"),
+             fn _ ->
+               {:ok, Rest.get_rest(conn, ttype, %{"_id" => BSON.ObjectId.decode!(id)})}
+             end
+           ) do
+      render(conn, "show.json", rest: rest)
+    end
+  end
+
   def replace(conn, %{"id" => id} = rest_params, ttype) do
     :ok = checkContentType(conn)
 

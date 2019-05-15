@@ -408,6 +408,52 @@ defmodule Zcms.Resource.Rest do
     end
   end
 
+  def patch_rest(read_only_conn, type, id, map, r \\ & &1, e \\ &updateError/4) do
+    permquery = buildpermissionquery(read_only_conn, "update")
+
+    mapWithoutForbitten = map |> stripOwner()
+
+    grantquery =
+      if isPermissionsUpdated?(mapWithoutForbitten),
+        do: buildpermissionquery(read_only_conn, "grant"),
+        else: %{}
+
+    case Mongo.update_one(
+           :mongo,
+           type,
+           %{"_id" => BSON.ObjectId.decode!(id)}
+           |> DeepMerge.deep_merge(permquery)
+           |> DeepMerge.deep_merge(grantquery),
+           %{
+             "$set" =>
+               mapWithoutForbitten
+               |> addModifiedBy(read_only_conn)
+               |> updateFileTimes(true)
+               |> map_keys(fn i -> Regex.replace(~r/^\$/, i, "_dlr_") end)
+           },
+           pool: DBConnection.Poolboy
+         ) do
+      {:ok, %{:matched_count => 1, :modified_count => 1}} ->
+        if type == "schema" do
+          :ok =
+            Zcms.Application.Transformer.transformSchema(fn a, b ->
+              Mongo.find(:mongo, a, b, pool: DBConnection.Poolboy)
+            end)
+        end
+
+        r.(id)
+
+      {:ok, %{:matched_count => 1, :modified_count => 0}} ->
+        r.(id)
+
+      {:ok, a} ->
+        e.(type, id, map, a)
+
+      q ->
+        e.(type, id, map, q)
+    end
+  end
+
   def replace_rest(read_only_conn, type, id, map, r \\ & &1, e \\ &updateError/4) do
     map = map |> Map.put_new("_id", id)
 
