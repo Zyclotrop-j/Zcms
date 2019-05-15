@@ -171,8 +171,10 @@ defmodule Zcms.Resource.Rest do
 
   defp stripOwner(query),
     do:
-      query
-      |> Map.update("_permissions", %{}, &Map.delete(&1, "__owner__"))
+      if(Map.has_key?(query, "_permissions"),
+        do: query |> Map.update("_permissions", %{}, &Map.delete(&1, "__owner__")),
+        else: query
+      )
       |> Map.delete("_author")
       |> Map.delete("_lastModifiedBy")
 
