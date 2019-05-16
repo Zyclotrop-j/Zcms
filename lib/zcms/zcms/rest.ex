@@ -33,9 +33,15 @@ defmodule Zcms.Resource.Rest do
   # TODO: HANDLE $ in key by rewrite -> $ not supported in GQL
   def list_rests(read_only_conn, type, query \\ %{}, r \\ & &1, e \\ & &1) do
     permquery = buildpermissionquery(read_only_conn, "show")
+    clientquery = buildclientquery(read_only_conn)
 
     r.(
-      Mongo.find(:mongo, type, query |> DeepMerge.deep_merge(permquery),
+      Mongo.find(
+        :mongo,
+        type,
+        query
+        |> DeepMerge.deep_merge(permquery)
+        |> DeepMerge.deep_merge(clientquery),
         pool: DBConnection.Poolboy
       )
       |> Enum.map(fn i -> map_keys(i, fn i -> Regex.replace(~r/^_dlr_/, i, "$") end) end)
@@ -109,6 +115,17 @@ defmodule Zcms.Resource.Rest do
     )
     |> Map.put("_lastModifiedBy", sub)
     |> Map.put("_author", sub)
+  end
+
+  defp buildclientquery(%{assigns: %{filters: %{"client" => client}}})
+       when client != nil do
+    %{
+      "_client" => client
+    }
+  end
+
+  defp buildclientquery(_) do
+    %{}
   end
 
   defp buildpermissionquery(%{assigns: %{joken_claims: %{"sub" => sub}}}, action)
@@ -248,8 +265,14 @@ defmodule Zcms.Resource.Rest do
         e \\ fn _, _, _ -> {:error, "Not found"} end
       ) do
     permquery = buildpermissionquery(read_only_conn, "show")
+    clientquery = buildclientquery(read_only_conn)
 
-    case Mongo.find_one(:mongo, type, query |> DeepMerge.deep_merge(permquery),
+    case Mongo.find_one(
+           :mongo,
+           type,
+           query
+           |> DeepMerge.deep_merge(permquery)
+           |> DeepMerge.deep_merge(clientquery),
            pool: DBConnection.Poolboy
          ) do
       nil ->
@@ -294,14 +317,12 @@ defmodule Zcms.Resource.Rest do
         e \\ &createError/3
       ) do
     permquery = buildpermissionquery(read_only_conn, "create")
-
-    IO.puts("create_rest")
-    IO.inspect(argsmap)
+    clientquery = buildclientquery(read_only_conn)
 
     case get_rest(
            read_only_conn,
            "schema",
-           %{"title" => type} |> Map.merge(permquery)
+           %{"title" => type} |> Map.merge(permquery) |> Map.merge(clientquery)
          ) do
       nil ->
         e.(type, argsmap, "Not allowed! (403)")
@@ -359,6 +380,7 @@ defmodule Zcms.Resource.Rest do
   """
   def update_rest(read_only_conn, type, id, map, r \\ & &1, e \\ &updateError/4) do
     permquery = buildpermissionquery(read_only_conn, "update")
+    clientquery = buildclientquery(read_only_conn)
 
     mapWithoutForbitten = map |> stripOwner()
 
@@ -372,6 +394,7 @@ defmodule Zcms.Resource.Rest do
            type,
            %{"_id" => BSON.ObjectId.decode!(id)}
            |> DeepMerge.deep_merge(permquery)
+           |> DeepMerge.deep_merge(clientquery)
            |> DeepMerge.deep_merge(grantquery),
            %{
              "$set" =>
@@ -412,6 +435,7 @@ defmodule Zcms.Resource.Rest do
 
   def patch_rest(read_only_conn, type, id, map, r \\ & &1, e \\ &updateError/4) do
     permquery = buildpermissionquery(read_only_conn, "update")
+    clientquery = buildclientquery(read_only_conn)
 
     mapWithoutForbitten = map |> stripOwner()
 
@@ -425,6 +449,7 @@ defmodule Zcms.Resource.Rest do
            type,
            %{"_id" => BSON.ObjectId.decode!(id)}
            |> DeepMerge.deep_merge(permquery)
+           |> DeepMerge.deep_merge(clientquery)
            |> DeepMerge.deep_merge(grantquery),
            %{
              "$set" =>
@@ -476,6 +501,7 @@ defmodule Zcms.Resource.Rest do
 
     mapWithoutForbitten = map |> stripOwner()
     permquery = buildpermissionquery(read_only_conn, "replace")
+    clientquery = buildclientquery(read_only_conn)
 
     grantquery =
       if isPermissionsUpdated?(mapWithoutForbitten),
@@ -506,6 +532,7 @@ defmodule Zcms.Resource.Rest do
            type,
            %{"_id" => BSON.ObjectId.decode!(id)}
            |> DeepMerge.deep_merge(permquery)
+           |> DeepMerge.deep_merge(clientquery)
            |> DeepMerge.deep_merge(grantquery),
            baseobj
            |> addModifiedBy(read_only_conn)
@@ -560,11 +587,14 @@ defmodule Zcms.Resource.Rest do
     end
 
     permquery = buildpermissionquery(read_only_conn, "delete")
+    clientquery = buildclientquery(read_only_conn)
 
     case Mongo.delete_one(
            :mongo,
            type,
-           %{"_id" => BSON.ObjectId.decode!(id)} |> DeepMerge.deep_merge(permquery),
+           %{"_id" => BSON.ObjectId.decode!(id)}
+           |> DeepMerge.deep_merge(permquery)
+           |> DeepMerge.deep_merge(clientquery),
            pool: DBConnection.Poolboy
          ) do
       {:ok, %{:deleted_count => 1}} ->

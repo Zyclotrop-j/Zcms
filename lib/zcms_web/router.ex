@@ -16,6 +16,24 @@ defmodule ZcmsWeb.AuthMockplug do
   end
 end
 
+defmodule ZcmsWeb.Clientplug do
+  import Plug.Conn
+
+  def init(options) do
+    options
+  end
+
+  def call(conn, _opts) do
+    client =
+      case get_req_header(conn, "x-client") do
+        [client] -> client
+        _ -> nil
+      end
+
+    assign(conn, :filters, %{"client" => client})
+  end
+end
+
 defmodule ZcmsWeb.Router do
   import Joken, except: [verify: 1]
   use ZcmsWeb, :router
@@ -47,6 +65,8 @@ defmodule ZcmsWeb.Router do
     else
       plug(ZcmsWeb.AuthMockplug)
     end
+
+    plug(ZcmsWeb.Clientplug)
   end
 
   pipeline :api do
