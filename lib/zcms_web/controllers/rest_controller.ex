@@ -136,7 +136,7 @@ defmodule ZcmsWeb.RestController do
              conn,
              ttype,
              id,
-             rest_params |> Map.delete("id") |> Map.delete("title"),
+             rest_params |> Map.delete("id"),
              fn _ ->
                {:ok, Rest.get_rest(conn, ttype, %{"_id" => BSON.ObjectId.decode!(id)})}
              end
@@ -153,7 +153,7 @@ defmodule ZcmsWeb.RestController do
              conn,
              ttype,
              id,
-             rest_params |> Map.delete("id") |> Map.delete("title"),
+             rest_params |> Map.delete("id"),
              fn _ ->
                {:ok, Rest.get_rest(conn, ttype, %{"_id" => BSON.ObjectId.decode!(id)})}
              end
@@ -170,7 +170,7 @@ defmodule ZcmsWeb.RestController do
              conn,
              ttype,
              id,
-             rest_params |> Map.delete("id") |> Map.delete("title"),
+             rest_params |> Map.delete("id"),
              fn _ ->
                {:ok, Rest.get_rest(conn, ttype, %{"_id" => BSON.ObjectId.decode!(id)})}
              end
