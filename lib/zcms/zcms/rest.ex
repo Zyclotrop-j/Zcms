@@ -120,7 +120,10 @@ defmodule Zcms.Resource.Rest do
   defp buildclientquery(%{assigns: %{filters: %{"client" => client}}})
        when client != nil do
     %{
-      "_client" => client
+      "$or" => [
+        %{"_client" => client},
+        %{"_client" => %{"$exists" => false}}
+      ]
     }
   end
 
