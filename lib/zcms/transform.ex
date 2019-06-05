@@ -263,7 +263,7 @@ defmodule Zcms.Application.Transformer do
 
       # try out a different default-resolver
       [type, data] ->
-        {"field(:\"#{Macro.underscore(k)}\", #{type}), resolve: #{defaultresolver()}", data}
+        {"field(:\"#{Macro.underscore(k)}\", #{type}, resolve: #{defaultresolver()})", data}
 
       [type, data, resolver] ->
         {"field(:\"#{Macro.underscore(k)}\", #{type}, resolve: loadOne(:zmongo))", data}
