@@ -79,7 +79,7 @@ defmodule Zcms.Application.Transformer do
           IO.inspect(name)
           case source do
             %{} ->
-              {:ok, Map.get(source, name) || Map.get(source, String.to_atom(name)}
+              {:ok, Map.get(source, name) || Map.get(source, String.to_atom(name))}
              _ ->
               {:ok, nil}
           end
