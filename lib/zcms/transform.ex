@@ -71,6 +71,18 @@ defmodule Zcms.Application.Transformer do
       end
     """
 
+  defp defaultresolver(),
+    do: """
+        fn _, %{source: source, definition: %{name: name}} ->
+          case source do
+            %{} ->
+              {:ok, Map.get(source, name)}
+             _ ->
+              {:ok, nil}
+          end
+        end
+    """
+
   def compile(name, ct) do
     {:ok, file} = File.open(name <> ".debug", [:write])
     IO.binwrite(file, ct)
@@ -246,8 +258,9 @@ defmodule Zcms.Application.Transformer do
       [nil, data] ->
         {"", data}
 
+      # try out a different default-resolver
       [type, data] ->
-        {"field(:\"#{Macro.underscore(k)}\", #{type})", data}
+        {"field(:\"#{Macro.underscore(k)}\", #{type}), resolve: #{defaultresolver()}", data}
 
       [type, data, resolver] ->
         {"field(:\"#{Macro.underscore(k)}\", #{type}, resolve: loadOne(:zmongo))", data}
