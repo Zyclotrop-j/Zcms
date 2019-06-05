@@ -74,9 +74,6 @@ defmodule Zcms.Application.Transformer do
   defp defaultresolver(),
     do: """
         fn _, %{source: source, definition: %{name: name}} ->
-          IO.puts("Default resolve")
-          IO.inspect(source)
-          IO.inspect(name)
           case source do
             %{} ->
               {:ok, Map.get(source, name) || Map.get(source, String.to_atom(name))}
