@@ -427,7 +427,9 @@ defmodule Zcms.Application.Transformer do
       |> Enum.map(fn i -> "#{i["x-$ref"]}" end)
       |> Enum.filter(fn x -> x != nil && x != "" end)
 
-    union = "union_" <> (typen |> Enum.join("_")) <> "_" <> random_string(64)
+    union =
+      ("union_" <> (typen |> Enum.join("_")) <> "_" <> random_string(64)) |> String.slice(0, 254)
+
     types = typen |> Enum.map(fn i -> ":#{i}" end) |> Enum.join(", ")
 
     case typen do
