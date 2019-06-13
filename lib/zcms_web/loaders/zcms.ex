@@ -148,13 +148,14 @@ defmodule Zcms.Loaders.Mongo do
     fn r, args, %{context: %{loader: loader}} = res ->
       resource = res.definition.schema_node.identifier
 
-      IO.puts("LOAD ONE")
-      IO.inspect(resource)
-      IO.inspect(r)
-
-      if Map.has_key?(r, resource) do
+      # resource :cta
+      # r %{ "cta": "..." }
+      if Map.has_key?(r, resource) || Map.has_key?(r, Atom.to_string(resource)) do
         type =
-          case Enum.find(res.path, fn x -> x.schema_node.identifier == resource end).schema_node.type do
+          case Enum.find(res.path, fn x ->
+                 x.schema_node.identifier == resource ||
+                   x.schema_node.identifier == Atom.to_string(resource)
+               end).schema_node.type do
             %{of_type: x} -> x
             val -> val
           end
