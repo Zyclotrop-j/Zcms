@@ -176,7 +176,8 @@ defmodule Zcms.Loaders.Mongo do
               type |> Macro.camelize()
           end
 
-        rh = if is_binary(r[resource]), do: r[resource], else: r[resource][:"$id"]
+        tmp = if Map.has_key?(r, resource), do: r[resource], else: r[Atom.to_string(resource)]
+        rh = if is_binary(tmp), do: tmp, else: tmp[:"$id"]
 
         IO.puts("RH RH RH")
         IO.inspect(rh)
