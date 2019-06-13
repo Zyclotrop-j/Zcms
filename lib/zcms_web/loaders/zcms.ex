@@ -150,6 +150,7 @@ defmodule Zcms.Loaders.Mongo do
 
       IO.puts("LOAD ONE")
       IO.inspect(resource)
+      IO.inspect(r)
 
       if Map.has_key?(r, resource) do
         type =
@@ -230,7 +231,10 @@ defmodule Zcms.Loaders.Mongo do
             end)
         end
       else
-        []
+        IO.puts("ERROR")
+        IO.inspect(r)
+        IO.inspect(resource)
+        {:error, "r not found in resource"}
       end
     end
   end
