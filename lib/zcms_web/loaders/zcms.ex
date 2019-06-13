@@ -156,6 +156,9 @@ defmodule Zcms.Loaders.Mongo do
           end
           |> Atom.to_string()
 
+        IO.puts("TYPE TYPE TYPE")
+        IO.inspect(type)
+
         type =
           case type do
             "union_" <> _ ->
@@ -169,6 +172,9 @@ defmodule Zcms.Loaders.Mongo do
           end
 
         rh = if is_binary(r[resource]), do: r[resource], else: r[resource][:"$id"]
+
+        IO.puts("RH RH RH")
+        IO.inspect(rh)
 
         cond do
           is_binary(type) ->
