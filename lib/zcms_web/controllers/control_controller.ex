@@ -51,7 +51,7 @@ defmodule ZcmsWeb.ControlController do
 
   def apiendpoints(conn, _params) do
     r =
-      Mongo.command!(:mongo, %{:listCollections => 1, :nameOnly => True},
+      Mongo.command!(:mongo, %{:listCollections => 1, :nameOnly => true},
         pool: DBConnection.Poolboy
       )
 
