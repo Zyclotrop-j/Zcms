@@ -161,9 +161,6 @@ defmodule Zcms.Loaders.Mongo do
           end
           |> Atom.to_string()
 
-        IO.puts("TYPE TYPE TYPE")
-        IO.inspect(type)
-
         type =
           case type do
             "union_" <> _ ->
@@ -178,9 +175,6 @@ defmodule Zcms.Loaders.Mongo do
 
         tmp = if Map.has_key?(r, resource), do: r[resource], else: r[Atom.to_string(resource)]
         rh = if is_binary(tmp), do: tmp, else: tmp[:"$id"]
-
-        IO.puts("RH RH RH")
-        IO.inspect(rh)
 
         cond do
           is_binary(type) ->
@@ -200,6 +194,7 @@ defmodule Zcms.Loaders.Mongo do
             |> on_load(fn loader ->
               {:ok,
                case Dataloader.get(loader, source, type <> "By_id", argss) do
+                 # always an object
                  nil -> %{}
                  x -> x |> Enum.filter(filterfn) |> List.first()
                end}
@@ -234,9 +229,6 @@ defmodule Zcms.Loaders.Mongo do
             end)
         end
       else
-        IO.puts("ERROR")
-        IO.inspect(r)
-        IO.inspect(resource)
         {:ok, nil}
       end
     end
