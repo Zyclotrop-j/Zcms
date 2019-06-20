@@ -236,7 +236,7 @@ defmodule Zcms.Loaders.Mongo do
         IO.puts("ERROR")
         IO.inspect(r)
         IO.inspect(resource)
-        {:error, "r not found in resource"}
+        {:ok, nil}
       end
     end
   end
