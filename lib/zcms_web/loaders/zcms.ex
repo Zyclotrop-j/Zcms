@@ -200,7 +200,7 @@ defmodule Zcms.Loaders.Mongo do
             |> on_load(fn loader ->
               {:ok,
                case Dataloader.get(loader, source, type <> "By_id", argss) do
-                 nil -> nil
+                 nil -> %{}
                  x -> x |> Enum.filter(filterfn) |> List.first()
                end}
             end)
