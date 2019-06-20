@@ -199,9 +199,10 @@ defmodule Zcms.Loaders.Mongo do
             |> Dataloader.load(source, type <> "By_id", argss)
             |> on_load(fn loader ->
               {:ok,
-               Dataloader.get(loader, source, type <> "By_id", argss)
-               |> Enum.filter(filterfn)
-               |> List.first()}
+               case Dataloader.get(loader, source, type <> "By_id", argss) do
+                 nil -> nil
+                 x -> x |> Enum.filter(filterfn) |> List.first()
+               end}
             end)
 
           is_list(type) ->
