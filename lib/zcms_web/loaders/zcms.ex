@@ -210,7 +210,13 @@ defmodule Zcms.Loaders.Mongo do
                 true ->
                   IO.puts("Error")
                   IO.inspect(argss)
-                  {:error, "Loading " <> type <> "By_id" <> " failed - not found!"}
+
+                  {:ok,
+                   Zcms.Resource.Rest.get_rest(
+                     res.context.conn,
+                     type |> String.downcase(),
+                     %{"_id" => rh}
+                   )}
               end
             end)
 
@@ -289,8 +295,7 @@ defmodule Zcms.Loaders.Mongo do
       Zcms.Resource.Rest.list_rests(
         conn,
         coll.coll |> String.downcase(),
-        %{}
-        # %{field => %{"$in" => rHandVals}}
+        %{field => %{"$in" => rHandVals}}
       )
 
     args
