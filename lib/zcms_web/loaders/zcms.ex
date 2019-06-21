@@ -286,7 +286,7 @@ defmodule Zcms.Loaders.Mongo do
       |> Enum.map(conv)
 
     # %{assigns: %{joken_claims: %{"sub" => sub}}},
-    IO.puts("QUERY")
+    IO.puts("QUERY QUERY")
     IO.inspect(coll.coll |> String.downcase())
     IO.inspect(batch)
     IO.inspect(args)
