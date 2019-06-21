@@ -208,8 +208,9 @@ defmodule Zcms.Loaders.Mongo do
                   {:ok, answer |> Enum.filter(filterfn) |> List.first()}
 
                 true ->
-                  {:error,
-                   "Loading " <> type <> "By_id" <> " with id=" <> rh <> " failed - not found!"}
+                  IO.puts("Error")
+                  IO.inspect(argss)
+                  {:error, "Loading " <> type <> "By_id" <> " failed - not found!"}
               end
             end)
 
