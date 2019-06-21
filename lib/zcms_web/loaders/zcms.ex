@@ -144,6 +144,22 @@ defmodule Zcms.Loaders.Mongo do
     end
   end
 
+  defp loadrecursive(loader, source, type, argss, filterfn) do
+    loader
+    |> Dataloader.load(source, type <> "By_id", argss)
+    |> on_load(fn loader ->
+      answer = Dataloader.get(loader, source, type <> "By_id", argss)
+
+      case answer do
+        nil ->
+          loadrecursive(loader, source, type, argss, filterfn)
+
+        _ ->
+          {:ok, answer |> Enum.filter(filterfn) |> List.first()}
+      end
+    end)
+  end
+
   def loadOne(source) do
     fn r, args, %{context: %{loader: loader}} = res ->
       resource = res.definition.schema_node.identifier
@@ -198,23 +214,7 @@ defmodule Zcms.Loaders.Mongo do
               Map.keys(args) |> Enum.all?(fn u -> d[u] && d[u] == args[u] end)
             end
 
-            loaderPromise = fn ->
-              loader
-              |> Dataloader.load(source, type <> "By_id", argss)
-              |> on_load(fn loader ->
-                answer = Dataloader.get(loader, source, type <> "By_id", argss)
-
-                case answer do
-                  nil ->
-                    loaderPromise.()
-
-                  _ ->
-                    {:ok, answer |> Enum.filter(filterfn) |> List.first()}
-                end
-              end)
-            end
-
-            loaderPromise.()
+            loadrecursive(loader, source, type, argss, filterfn)
 
           is_list(type) ->
             argss =
