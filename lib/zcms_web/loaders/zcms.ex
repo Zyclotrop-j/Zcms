@@ -144,22 +144,6 @@ defmodule Zcms.Loaders.Mongo do
     end
   end
 
-  defp loadrecursive(loader, source, type, argss, filterfn) do
-    loader
-    |> Dataloader.load(source, type <> "By_id", argss)
-    |> on_load(fn loader ->
-      answer = Dataloader.get(loader, source, type <> "By_id", argss)
-
-      cond do
-        answer != nil ->
-          {:ok, answer |> Enum.filter(filterfn) |> List.first()}
-
-        true ->
-          nil
-      end
-    end)
-  end
-
   def loadOne(source) do
     fn r, args, %{context: %{loader: loader}} = res ->
       resource = res.definition.schema_node.identifier
@@ -214,7 +198,20 @@ defmodule Zcms.Loaders.Mongo do
               Map.keys(args) |> Enum.all?(fn u -> d[u] && d[u] == args[u] end)
             end
 
-            loadrecursive(loader, source, type, argss, filterfn)
+            loader
+            |> Dataloader.load(source, type <> "By_id", argss)
+            |> on_load(fn loader ->
+              answer = Dataloader.get(loader, source, type <> "By_id", argss)
+
+              cond do
+                answer != nil ->
+                  {:ok, answer |> Enum.filter(filterfn) |> List.first()}
+
+                true ->
+                  {:error,
+                   "Loading " <> type <> "By_id" <> " with id=" <> rh <> " failed - not found!"}
+              end
+            end)
 
           is_list(type) ->
             argss =
@@ -291,7 +288,8 @@ defmodule Zcms.Loaders.Mongo do
       Zcms.Resource.Rest.list_rests(
         conn,
         coll.coll |> String.downcase(),
-        %{field => %{"$in" => rHandVals}}
+        %{}
+        # %{field => %{"$in" => rHandVals}}
       )
 
     args
