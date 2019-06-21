@@ -150,12 +150,16 @@ defmodule Zcms.Loaders.Mongo do
     |> on_load(fn loader ->
       answer = Dataloader.get(loader, source, type <> "By_id", argss)
 
-      case answer do
-        nil ->
-          loadrecursive(loader, source, type, argss, filterfn)
+      cond do
+        !answer ->
+          {:ok, answer |> Enum.filter(filterfn) |> List.first()}
 
         _ ->
-          {:ok, answer |> Enum.filter(filterfn) |> List.first()}
+          newloader =
+            Dataloader.new()
+            |> Dataloader.add_source(:zmongo, Zcms.Loaders.Mongo.data())
+
+          loadrecursive(newloader, source, type, argss, filterfn)
       end
     end)
   end
