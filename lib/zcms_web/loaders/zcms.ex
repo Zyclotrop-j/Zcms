@@ -297,6 +297,8 @@ defmodule Zcms.Loaders.Mongo do
         %{field => %{"$in" => rHandVals}}
       )
 
+    IO.inspect(qresult)
+
     args
     |> Enum.reduce(%{}, fn arg, acc ->
       Map.put(
