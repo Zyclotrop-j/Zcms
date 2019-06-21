@@ -211,12 +211,18 @@ defmodule Zcms.Loaders.Mongo do
                   IO.puts("Error")
                   IO.inspect(argss)
 
-                  {:ok,
-                   Zcms.Resource.Rest.get_rest(
-                     res.context.conn,
-                     type |> String.downcase(),
-                     %{"_id" => rh}
-                   )}
+                  backup =
+                    Zcms.Resource.Rest.get_rest(
+                      res.context.conn,
+                      type |> String.downcase(),
+                      %{"_id" => rh}
+                    )
+
+                  IO.inspect(type)
+                  IO.inspect(rh)
+                  IO.inspect(backup)
+
+                  {:ok, backup}
               end
             end)
 
