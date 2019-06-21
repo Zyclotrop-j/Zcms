@@ -288,6 +288,8 @@ defmodule Zcms.Loaders.Mongo do
     # %{assigns: %{joken_claims: %{"sub" => sub}}},
     IO.puts("QUERY")
     IO.inspect(coll.coll |> String.downcase())
+    IO.inspect(batch)
+    IO.inspect(args)
     IO.inspect(%{field => %{"$in" => rHandVals}})
 
     qresult =
