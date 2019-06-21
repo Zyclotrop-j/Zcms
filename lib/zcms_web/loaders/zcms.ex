@@ -215,7 +215,7 @@ defmodule Zcms.Loaders.Mongo do
                     Zcms.Resource.Rest.get_rest(
                       res.context.conn,
                       type |> String.downcase(),
-                      %{"_id" => rh}
+                      %{"_id" => BSON.ObjectId.decode!(rh)}
                     )
 
                   IO.inspect(type)
