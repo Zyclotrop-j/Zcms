@@ -201,12 +201,19 @@ defmodule Zcms.Loaders.Mongo do
             loader
             |> Dataloader.load(source, type <> "By_id", argss)
             |> on_load(fn loader ->
-              answer =
-                Dataloader.get(loader, source, type <> "By_id", argss)
-                |> Enum.filter(filterfn)
-                |> List.first()
+              answer = Dataloader.get(loader, source, type <> "By_id", argss)
 
-              {:ok, answer}
+              case answer do
+                nil ->
+                  IO.puts("ERROR NOT FOUND " <> type)
+                  IO.inspect(answer)
+                  IO.inspect(type)
+                  IO.inspect(argss)
+                  {:ok, nil}
+
+                _ ->
+                  {:ok, answer |> Enum.filter(filterfn) |> List.first()}
+              end
             end)
 
           is_list(type) ->
@@ -254,9 +261,6 @@ defmodule Zcms.Loaders.Mongo do
       args
       |> Enum.map(fn arg -> arg.conn end)
       |> Enum.at(0)
-
-    IO.puts("!!!!!!!!!!args")
-    IO.inspect(args |> MapSet.to_list())
 
     coll =
       args
