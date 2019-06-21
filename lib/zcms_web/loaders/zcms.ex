@@ -198,23 +198,23 @@ defmodule Zcms.Loaders.Mongo do
               Map.keys(args) |> Enum.all?(fn u -> d[u] && d[u] == args[u] end)
             end
 
-            loader
-            |> Dataloader.load(source, type <> "By_id", argss)
-            |> on_load(fn loader ->
-              answer = Dataloader.get(loader, source, type <> "By_id", argss)
+            loaderPromise = fn ->
+              loader
+              |> Dataloader.load(source, type <> "By_id", argss)
+              |> on_load(fn loader ->
+                answer = Dataloader.get(loader, source, type <> "By_id", argss)
 
-              case answer do
-                nil ->
-                  IO.puts("ERROR NOT FOUND " <> type)
-                  IO.inspect(answer)
-                  IO.inspect(type)
-                  IO.inspect(argss)
-                  {:ok, nil}
+                case answer do
+                  nil ->
+                    loaderPromise.()
 
-                _ ->
-                  {:ok, answer |> Enum.filter(filterfn) |> List.first()}
-              end
-            end)
+                  _ ->
+                    {:ok, answer |> Enum.filter(filterfn) |> List.first()}
+                end
+              end)
+            end
+
+            loaderPromise.()
 
           is_list(type) ->
             argss =
@@ -286,11 +286,6 @@ defmodule Zcms.Loaders.Mongo do
       |> Enum.map(conv)
 
     # %{assigns: %{joken_claims: %{"sub" => sub}}},
-    IO.puts("QUERY QUERY")
-    IO.inspect(coll.coll |> String.downcase())
-    IO.inspect(batch)
-    IO.inspect(args)
-    IO.inspect(%{field => %{"$in" => rHandVals}})
 
     qresult =
       Zcms.Resource.Rest.list_rests(
@@ -298,8 +293,6 @@ defmodule Zcms.Loaders.Mongo do
         coll.coll |> String.downcase(),
         %{field => %{"$in" => rHandVals}}
       )
-
-    IO.inspect(qresult)
 
     args
     |> Enum.reduce(%{}, fn arg, acc ->
