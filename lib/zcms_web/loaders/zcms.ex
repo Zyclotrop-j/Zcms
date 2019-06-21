@@ -183,6 +183,9 @@ defmodule Zcms.Loaders.Mongo do
         rh = if is_binary(tmp), do: tmp, else: tmp[:"$id"]
 
         cond do
+          rh == nil ->
+            {:ok, nil}
+
           rh == "" ->
             {:ok, nil}
 
