@@ -151,10 +151,10 @@ defmodule Zcms.Loaders.Mongo do
       answer = Dataloader.get(loader, source, type <> "By_id", argss)
 
       cond do
-        !answer ->
+        answer != nil ->
           {:ok, answer |> Enum.filter(filterfn) |> List.first()}
 
-        _ ->
+        true ->
           newloader =
             Dataloader.new()
             |> Dataloader.add_source(:zmongo, Zcms.Loaders.Mongo.data())
