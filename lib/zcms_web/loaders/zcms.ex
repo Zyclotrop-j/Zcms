@@ -155,11 +155,7 @@ defmodule Zcms.Loaders.Mongo do
           {:ok, answer |> Enum.filter(filterfn) |> List.first()}
 
         true ->
-          newloader =
-            Dataloader.new()
-            |> Dataloader.add_source(:zmongo, Zcms.Loaders.Mongo.data())
-
-          loadrecursive(newloader, source, type, argss, filterfn)
+          nil
       end
     end)
   end
