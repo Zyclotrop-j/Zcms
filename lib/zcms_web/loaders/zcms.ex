@@ -173,10 +173,19 @@ defmodule Zcms.Loaders.Mongo do
               type |> Macro.camelize()
           end
 
-        tmp = if Map.has_key?(r, resource), do: r[resource], else: r[Atom.to_string(resource)]
+        tmp =
+          cond do
+            Map.has_key?(r, resource) -> r[resource]
+            Map.has_key?(r, Atom.to_string(resource)) -> r[Atom.to_string(resource)]
+            true -> r[Atom.to_string(resource)]
+          end
+
         rh = if is_binary(tmp), do: tmp, else: tmp[:"$id"]
 
         cond do
+          rh == "" ->
+            {:ok, nil}
+
           is_binary(type) ->
             argss = %{
               :coll => type,
