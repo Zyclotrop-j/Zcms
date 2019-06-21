@@ -286,6 +286,9 @@ defmodule Zcms.Loaders.Mongo do
       |> Enum.map(conv)
 
     # %{assigns: %{joken_claims: %{"sub" => sub}}},
+    IO.puts("QUERY")
+    IO.inspect(coll.coll |> String.downcase())
+    IO.inspect(%{field => %{"$in" => rHandVals}})
 
     qresult =
       Zcms.Resource.Rest.list_rests(
