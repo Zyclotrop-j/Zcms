@@ -192,12 +192,12 @@ defmodule Zcms.Loaders.Mongo do
             loader
             |> Dataloader.load(source, type <> "By_id", argss)
             |> on_load(fn loader ->
-              {:ok,
-               case Dataloader.get(loader, source, type <> "By_id", argss) do
-                 # always an object
-                 nil -> %{}
-                 x -> x |> Enum.filter(filterfn) |> List.first()
-               end}
+              answer =
+                Dataloader.get(loader, source, type <> "By_id", argss)
+                |> Enum.filter(filterfn)
+                |> List.first()
+
+              {:ok, answer}
             end)
 
           is_list(type) ->
@@ -246,6 +246,9 @@ defmodule Zcms.Loaders.Mongo do
       |> Enum.map(fn arg -> arg.conn end)
       |> Enum.at(0)
 
+    IO.puts("!!!!!!!!!!args")
+    IO.inspect(args |> MapSet.to_list())
+
     coll =
       args
       |> MapSet.to_list()
@@ -275,7 +278,7 @@ defmodule Zcms.Loaders.Mongo do
       Zcms.Resource.Rest.list_rests(
         conn,
         coll.coll |> String.downcase(),
-        %{Enum.join(Tuple.to_list(coll.field), ".") => %{"$in" => rHandVals}}
+        %{field => %{"$in" => rHandVals}}
       )
 
     args
