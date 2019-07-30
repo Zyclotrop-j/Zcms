@@ -77,11 +77,11 @@ defmodule Zcms.Loaders.Mongo do
           end
 
         type =
-          case :ets.lookup(:typemapping, type) do
+          case type |> String.length() > 240 && :ets.lookup(:typemapping, type) do
             [{^type, xt}] ->
               xt |> Enum.map(&Macro.camelize/1)
 
-            [] ->
+            _ ->
               case type do
                 "union_" <> _ ->
                   type

@@ -432,7 +432,9 @@ defmodule Zcms.Application.Transformer do
 
     types = typen |> Enum.map(fn i -> ":#{i}" end) |> Enum.join(", ")
 
-    :ets.insert(:typemapping, {union, typen})
+    if typen |> Enum.join("_") |> String.length() > 240 do
+      :ets.insert(:typemapping, {union, typen})
+    end
 
     case typen do
       [] ->
