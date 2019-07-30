@@ -54,6 +54,8 @@ defmodule ZcmsWeb.UploadController do
     file_uuid = UUID.uuid4(:hex)
     unique_filename = "#{file_uuid}"
 
+    # x-amz-meta-
+
     {:ok, file} =
       Zcms.Resource.Asset.store(
         {%Plug.Upload{filename: unique_filename, path: path},

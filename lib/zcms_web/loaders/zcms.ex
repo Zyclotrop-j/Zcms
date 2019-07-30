@@ -53,6 +53,7 @@ defmodule Zcms.Loaders.Mongo do
       resource = res.definition.schema_node.identifier
 
       if Map.has_key?(r, resource) do
+        # type = res.definition.schema_node.type.of_type
         type =
           case Enum.find(res.path, fn x -> x.schema_node.identifier == resource end).schema_node.type do
             %{of_type: x} -> x
@@ -60,7 +61,10 @@ defmodule Zcms.Loaders.Mongo do
           end
           |> Atom.to_string()
 
-        type =
+        # delete me
+        etcslookup = :ets.lookup(:typemapping, type)
+
+        oldtype =
           case type do
             "union_" <> _ ->
               type
@@ -70,6 +74,24 @@ defmodule Zcms.Loaders.Mongo do
 
             _ ->
               type |> Macro.camelize()
+          end
+
+        type =
+          case :ets.lookup(:typemapping, type) do
+            [{^type, xt}] ->
+              xt |> Enum.map(&Macro.camelize/1)
+
+            [] ->
+              case type do
+                "union_" <> _ ->
+                  type
+                  |> String.split("_")
+                  |> Enum.slice(1..-2)
+                  |> Enum.map(&Macro.camelize/1)
+
+                _ ->
+                  type |> Macro.camelize()
+              end
           end
 
         rh =
@@ -207,13 +229,7 @@ defmodule Zcms.Loaders.Mongo do
               answer = Dataloader.get(loader, source, type <> "By_id", argss)
 
               cond do
-                answer != nil ->
-                  {:ok, answer |> Enum.filter(filterfn) |> List.first()}
-
-                true ->
-                  IO.puts("Error")
-                  IO.inspect(argss)
-
+                answer == nil ->
                   backup =
                     Zcms.Resource.Rest.get_rest(
                       res.context.conn,
@@ -221,11 +237,16 @@ defmodule Zcms.Loaders.Mongo do
                       %{"_id" => BSON.ObjectId.decode!(rh)}
                     )
 
+                  IO.puts("Error - batch loader failed to load")
+                  IO.puts("Falling back to individual loading")
+                  IO.inspect(argss)
                   IO.inspect(type)
                   IO.inspect(rh)
                   IO.inspect(backup)
-
                   {:ok, backup}
+
+                true ->
+                  {:ok, answer |> Enum.filter(filterfn) |> List.first()}
               end
             end)
 
