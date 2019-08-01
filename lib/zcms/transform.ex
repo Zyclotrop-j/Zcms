@@ -76,7 +76,7 @@ defmodule Zcms.Application.Transformer do
         fn _, %{source: source, definition: %{name: name}} ->
           case source do
             %{} ->
-              {:ok, Map.get(source, name) || Map.get(source, String.to_atom(name))}
+              {:ok, Map.get(source, name) || Map.get(source, String.to_atom(name)) || Enum.find_value(source, fn {k, v} -> if (k == name || k == String.to_atom(name)), do: v, else: false end)}
              _ ->
               {:ok, nil}
           end
