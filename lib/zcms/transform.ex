@@ -74,34 +74,25 @@ defmodule Zcms.Application.Transformer do
   defp defaultresolver(),
     do: """
         fn _, %{source: source, definition: %{name: name}} ->
-          x = case source do
+          case source do
             %{} ->
               {:ok,
                 Map.get(source, name) ||
                 Map.get(source, String.to_atom(name)) ||
-                Map.get(source,  Macro.underscore(name)) ||
-                Map.get(source,  String.to_atom(Macro.underscore(name))) ||
+                Map.get(source, Macro.underscore(name)) ||
+                Map.get(source, Macro.underscore(name)) |> String.to_atom() ||
                 Enum.find_value(source,
                   fn {k, v} -> if (
                     k == name ||
                     k == String.to_atom(name) ||
                     k == Macro.underscore(name) ||
-                    k == String.to_atom(Macro.underscore(name))
+                    k == Macro.underscore(name) |> String.to_atom()
                   ), do: v, else: false end
                 )
               }
              _ ->
               {:ok, nil}
           end
-          IO.puts("!!!!!!!!!!!! START")
-          IO.puts("!!!!!!!!!!!! X")
-          IO.inspect(x)
-          IO.puts("!!!!!!!!!!!! NAME")
-          IO.inspect(name)
-          IO.puts("!!!!!!!!!!!! SOURCE")
-          IO.inspect(source)
-          IO.puts("!!!!!!!!!!!! END")
-          x
         end
     """
 
