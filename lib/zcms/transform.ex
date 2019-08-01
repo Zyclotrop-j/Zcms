@@ -5,7 +5,7 @@ end
 :random.seed(1_234_567_890)
 
 defmodule Zcms.Application.Transformer do
-  def defaultResolverHelper(source, name) do
+  def defaultResolverHelper(source, name) when is_binary(name) do
     case source do
       %{} ->
         {:ok,
@@ -26,6 +26,8 @@ defmodule Zcms.Application.Transformer do
         {:ok, nil}
     end
   end
+
+  def defaultResolverHelper(_, _), do: {:ok, nil}
 
   defp baseschema(),
     do: """
