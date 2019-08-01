@@ -5,6 +5,28 @@ end
 :random.seed(1_234_567_890)
 
 defmodule Zcms.Application.Transformer do
+  def defaultResolverHelper(source, name) do
+    case source do
+      %{} ->
+        {:ok,
+         Map.get(source, name) || Map.get(source, String.to_atom(name)) ||
+           Map.get(source, Macro.underscore(name)) ||
+           Map.get(source, Macro.underscore(name)) |> String.to_atom() ||
+           Enum.find_value(
+             source,
+             fn {k, v} ->
+               if k == name || k == String.to_atom(name) || k == Macro.underscore(name) ||
+                    k == Macro.underscore(name) |> String.to_atom(),
+                  do: v,
+                  else: false
+             end
+           )}
+
+      _ ->
+        {:ok, nil}
+    end
+  end
+
   defp baseschema(),
     do: """
       defmodule ZcmsWeb.Schema do
@@ -74,25 +96,7 @@ defmodule Zcms.Application.Transformer do
   defp defaultresolver(),
     do: """
         fn _, %{source: source, definition: %{name: name}} ->
-          case source do
-            %{} ->
-              {:ok,
-                Map.get(source, name) ||
-                Map.get(source, String.to_atom(name)) ||
-                Map.get(source, Macro.underscore(name)) ||
-                Map.get(source, Macro.underscore(name)) |> String.to_atom() ||
-                Enum.find_value(source,
-                  fn {k, v} -> if (
-                    k == name ||
-                    k == String.to_atom(name) ||
-                    k == Macro.underscore(name) ||
-                    k == Macro.underscore(name) |> String.to_atom()
-                  ), do: v, else: false end
-                )
-              }
-             _ ->
-              {:ok, nil}
-          end
+          Zcms.Application.Transformer.defaultResolverHelper(source, name)
         end
     """
 
@@ -187,20 +191,11 @@ defmodule Zcms.Application.Transformer do
     # nofile:127: Update_resume :resume is not defined in your schema
     # stacktrace: (zcms) lib/zcms/transform.ex:159: Zcms.Application.Transformer.transformSchema/1.
     a = :code.delete(Elixir.Absinthe.Schema)
-    c = :code.delete(Elixir.ZcmsWeb.Schema)
     b = :code.purge(Elixir.Absinthe.Schema)
-    d = :code.purge(Elixir.ZcmsWeb.Schema)
-    a = :code.delete(Elixir.Absinthe.Schema)
-    c = :code.delete(Elixir.ZcmsWeb.Schema)
 
-    IO.inspect(a: a, b: b, c: c, d: d)
     # atomic_load
     # Code.compile_string
     {:ok, file} = compile(schemapath <> schemafile, schemafirst(importtypes) <> r <> schemalast)
-    allnewmodules = [file | mods]
-    IO.puts("allnewmodules")
-    IO.inspect(allnewmodules)
-
     :ok
   end
 
