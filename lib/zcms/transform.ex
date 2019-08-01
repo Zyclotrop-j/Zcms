@@ -86,7 +86,14 @@ defmodule Zcms.Application.Transformer do
              _ ->
               {:ok, nil}
           end
-          IO.inspect(x, name, source)
+          IO.puts("!!!!!!!!!!!! START")
+          IO.puts("!!!!!!!!!!!! X")
+          IO.inspect(x)
+          IO.puts("!!!!!!!!!!!! NAME")
+          IO.inspect(name)
+          IO.puts("!!!!!!!!!!!! SOURCE")
+          IO.inspect(source)
+          IO.puts("!!!!!!!!!!!! END")
           x
         end
     """
