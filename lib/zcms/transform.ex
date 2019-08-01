@@ -11,12 +11,34 @@ defmodule Zcms.Application.Transformer do
         {:ok,
          Map.get(source, name) || Map.get(source, String.to_atom(name)) ||
            Map.get(source, Macro.underscore(name)) ||
-           Map.get(source, Macro.underscore(name)) |> String.to_atom() ||
+           Map.get(source, Macro.underscore(name) |> String.to_atom()) ||
            Enum.find_value(
              source,
              fn {k, v} ->
                if k == name || k == String.to_atom(name) || k == Macro.underscore(name) ||
                     k == Macro.underscore(name) |> String.to_atom(),
+                  do: v,
+                  else: false
+             end
+           )}
+
+      _ ->
+        {:ok, nil}
+    end
+  end
+
+  def defaultResolverHelper(source, name) when is_atom(name) do
+    case source do
+      %{} ->
+        {:ok,
+         Map.get(source, name) || Map.get(source, name |> Atom.to_string() |> Macro.underscore()) ||
+           Map.get(source, name |> Atom.to_string() |> Macro.underscore()) |> String.to_atom() ||
+           Enum.find_value(
+             source,
+             fn {k, v} ->
+               if k == name || k == name |> Atom.to_string() ||
+                    k == name |> Atom.to_string() |> Macro.underscore() ||
+                    k == name |> Atom.to_string() |> Macro.underscore() |> String.to_atom(),
                   do: v,
                   else: false
              end
